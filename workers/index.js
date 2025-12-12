@@ -167,7 +167,10 @@ async function handleConvert(request, url) {
             headers: {
                 ...headers,
                 'Content-Type': contentTypes[target] || 'text/plain',
-                'Content-Disposition': `attachment; filename="config.${target === 'singbox' ? 'json' : 'yaml'}"`
+                'Content-Disposition': `attachment; filename="config.${target === 'singbox' ? 'json' :
+                        ['clash', 'clashmeta', 'stash'].includes(target) ? 'yaml' :
+                            ['surge', 'loon', 'surfboard'].includes(target) ? 'conf' : 'txt'
+                    }"`
             }
         })
 

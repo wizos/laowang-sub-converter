@@ -131,8 +131,18 @@ export default async function handler(req, res) {
             singbox: 'application/json'
         }
 
+        // 确定文件扩展名
+        let extension = 'txt'
+        if (target === 'singbox') {
+            extension = 'json'
+        } else if (['clash', 'clashmeta', 'stash'].includes(target)) {
+            extension = 'yaml'
+        } else if (['surge', 'loon', 'surfboard'].includes(target)) {
+            extension = 'conf'
+        }
+
         res.setHeader('Content-Type', contentTypes[target] || 'text/plain')
-        res.setHeader('Content-Disposition', `attachment; filename="config.${target === 'singbox' ? 'json' : 'yaml'}"`)
+        res.setHeader('Content-Disposition', `attachment; filename="config.${extension}"`)
         return res.send(output)
 
     } catch (error) {
