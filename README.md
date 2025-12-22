@@ -38,7 +38,7 @@
 - **多客户端支持** - Clash、Surge、Quantumult X、Shadowrocket、Loon、V2RayN、V2RayNG、NekoBox、sing-box 等
 - **短链接服务** - 生成短链接便于分享，支持访问统计
 - **多主题切换** - 8 种精美主题随心切换
-- **多语言支持** - 简体中文、繁体中文、English
+- **多语言支持** - 简体中文、English
 - **多种部署方式** - Docker、Cloudflare、Vercel、Netlify
 - **备用 API** - 支持多个后端 API 自动切换
 
@@ -51,11 +51,11 @@
 
 | 平台 | 部署按钮/命令 |
 | :--- | :--- |
-| **Docker (VPS)** | \docker-compose up -d\ |
+| **Docker (VPS)** | `docker-compose up -d` |
 | **Zeabur** | [![Deploy on Zeabur](https://zeabur.com/button.svg)](https://zeabur.com/new) |
 | **Railway** | [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https%3A%2F%2Fgithub.com%2Ftony-wang1990%2Flaowang-sub-converter) |
 | **Render** | [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/tony-wang1990/laowang-sub-converter) |
-| **Fly.io** | \ly launch\ |
+| **Fly.io** | `fly launch` |
 | **Koyeb** | [![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&repository=tony-wang1990/laowang-sub-converter) |
 
 ###  仅前端/演示 (功能受限)
@@ -71,18 +71,18 @@
 
 ##  本地开发
 
-`ash
+```bash
 git clone https://github.com/tony-wang1990/laowang-sub-converter.git
 cd laowang-sub-converter
 npm install
 npm run dev
-`
+```
 
 ### Docker 容器运行 (测试用)
 
-`ash
+```bash
 docker run -d -p 3000:3000 --name sub-converter ghcr.io/tony-wang1990/laowang-sub-converter:latest
-`
+```
 
 ---
 

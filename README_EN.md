@@ -38,7 +38,7 @@ English | [简体中文](./README.md)
 -  **Multi-Client Support** - Clash, Surge, Quantumult X, Shadowrocket, Loon, V2RayN, V2RayNG, NekoBox, sing-box etc.
 -  **Short Link Service** - Generate short links for easy sharing, supports access statistics
 -  **Multi-Theme** - 8 beautiful themes to switch freely
--  **Multi-Language** - Simplified Chinese, Traditional Chinese, English
+-  **Multi-Language** - Simplified Chinese, English
 -  **Multiple Deployment** - Docker, Cloudflare, Vercel, Netlify
 -  **Backup API** - Supports automatic failover to backup backend APIs
 
@@ -51,11 +51,11 @@ English | [简体中文](./README.md)
 
 | Platform | Button / Command |
 | :--- | :--- |
-| **Docker (VPS)** | \docker-compose up -d\ |
+| **Docker (VPS)** | `docker-compose up -d` |
 | **Zeabur** | [![Deploy on Zeabur](https://zeabur.com/button.svg)](https://zeabur.com/new) |
 | **Railway** | [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https%3A%2F%2Fgithub.com%2Ftony-wang1990%2Flaowang-sub-converter) |
 | **Render** | [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/tony-wang1990/laowang-sub-converter) |
-| **Fly.io** | \ly launch\ |
+| **Fly.io** | `fly launch` |
 | **Koyeb** | [![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&repository=tony-wang1990/laowang-sub-converter) |
 
 ###  Frontend/Demo (Limited)
@@ -71,18 +71,18 @@ English | [简体中文](./README.md)
 
 ##  Local Development
 
-`ash
+```bash
 git clone https://github.com/tony-wang1990/laowang-sub-converter.git
 cd laowang-sub-converter
 npm install
 npm run dev
-`
+```
 
 ### Docker Container (Testing)
 
-`ash
+```bash
 docker run -d -p 3000:3000 --name sub-converter ghcr.io/tony-wang1990/laowang-sub-converter:latest
-`
+```
 
 ---
 
