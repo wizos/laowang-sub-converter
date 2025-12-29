@@ -36,6 +36,9 @@
 
 - **多协议支持** - SS、SSR、VMess、VLESS（含 Reality）、Trojan、Hysteria、Hysteria2、TUIC
 - **多客户端支持** - Clash、Surge、Quantumult X、Shadowrocket、Loon、V2RayN、V2RayNG、NekoBox、sing-box 等
+- **节点健康检测** - 🩺 实时检测节点连通性与延迟，自动筛选高可用节点
+- **订阅合并** - 📎 支持多订阅合并、智能去重、重命名与高级过滤
+- **规则分流** - 📋 内置 5 套精选分流规则模板（标准/游戏/流媒体等），一键应用
 - **短链接服务** - 生成短链接便于分享，支持访问统计
 - **多主题切换** - 8 种精美主题随心切换
 - **多语言支持** - 简体中文、English
@@ -44,9 +47,10 @@
 
 ---
 
-##  部署指南
+## 部署指南
 
-###  推荐部署 (完整功能)
+### 推荐部署 (完整功能)
+>
 > 包含后端 API 和持久化存储，支持短链接等所有功能。
 
 | 平台 | 部署按钮/命令 |
@@ -58,7 +62,8 @@
 | **Fly.io** | `fly launch` |
 | **Koyeb** | [![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&repository=tony-wang1990/laowang-sub-converter) |
 
-###  仅前端/演示 (功能受限)
+### 仅前端/演示 (功能受限)
+>
 > 主要用于展示前端界面，**短链接等需要存储的功能无法长期使用**（因为没有持久化数据库）。
 
 | 平台 | 部署按钮 |
@@ -69,7 +74,7 @@
 
 ---
 
-##  本地开发
+## 本地开发
 
 ```bash
 git clone https://github.com/tony-wang1990/laowang-sub-converter.git
