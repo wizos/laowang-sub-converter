@@ -68,11 +68,11 @@ router.post('/', async (req, res) => {
             }
         }
 
-        // 去重 (基于 server:port 组合)
+        // 去重 (基于 type:server:port 组合，防止同端口不同协议误删)
         if (dedupe) {
             const seen = new Set()
             allNodes = allNodes.filter(node => {
-                const key = `${node.server}:${node.port}`
+                const key = `${node.type}:${node.server}:${node.port}`
                 if (seen.has(key)) {
                     return false
                 }
@@ -196,7 +196,7 @@ router.post('/preview', async (req, res) => {
         if (dedupe) {
             const seen = new Set()
             allNodes = allNodes.filter(node => {
-                const key = `${node.server}:${node.port}`
+                const key = `${node.type}:${node.server}:${node.port}`
                 if (seen.has(key)) return false
                 seen.add(key)
                 return true

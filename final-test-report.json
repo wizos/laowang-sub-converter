@@ -1,131 +1,37 @@
 {
-  "timestamp": "2025-12-22T06:48:48.457Z",
-  "tests": {
-    "total": 35,
-    "passed": 35,
-    "failed": 0,
-    "warnings": 0
+  "summary": {
+    "total": 7,
+    "passed": 7,
+    "failed": 0
   },
-  "sections": {
-    "protocols": {
-      "ss": {
-        "passed": true,
-        "nodeCount": 1
-      },
-      "vmess": {
-        "passed": true,
-        "nodeCount": 1
-      },
-      "vless": {
-        "passed": true,
-        "nodeCount": 1
-      },
-      "trojan": {
-        "passed": true,
-        "nodeCount": 1
-      },
-      "hysteria": {
-        "passed": true,
-        "nodeCount": 1
-      },
-      "hysteria2": {
-        "passed": true,
-        "nodeCount": 1
-      },
-      "tuic": {
-        "passed": true,
-        "nodeCount": 1
-      }
+  "details": [
+    {
+      "name": "基础转换功能 (Clash)",
+      "status": "passed"
     },
-    "subscription": {
-      "passed": true,
-      "contentSize": 11108,
-      "nodeCount": 27,
-      "types": {
-        "trojan": 6,
-        "vless": 21
-      }
+    {
+      "name": "基础转换功能 (SingBox/JSON)",
+      "status": "passed"
     },
-    "vlessReality": {
-      "passed": true,
-      "name": "vl-reality-racknerd-7e5f292",
-      "hasReality": true,
-      "hasFlow": true
+    {
+      "name": "规则分流配置 (Rule Preset: Standard)",
+      "status": "passed"
     },
-    "clients": {
-      "clash": {
-        "passed": true,
-        "outputLength": 9019
-      },
-      "clashmeta": {
-        "passed": true,
-        "outputLength": 9019
-      },
-      "surge": {
-        "passed": true,
-        "outputLength": 4209
-      },
-      "quantumultx": {
-        "passed": true,
-        "outputLength": 4476
-      },
-      "shadowrocket": {
-        "passed": true,
-        "outputLength": 9236
-      },
-      "loon": {
-        "passed": true,
-        "outputLength": 4017
-      },
-      "v2rayn": {
-        "passed": true,
-        "outputLength": 9236
-      },
-      "v2rayng": {
-        "passed": true,
-        "outputLength": 9236
-      },
-      "nekobox": {
-        "passed": true,
-        "outputLength": 12171
-      },
-      "surfboard": {
-        "passed": true,
-        "outputLength": 4209
-      },
-      "stash": {
-        "passed": true,
-        "outputLength": 9019
-      },
-      "singbox": {
-        "passed": true,
-        "outputLength": 12171
-      }
+    {
+      "name": "规则分流配置 (Rule Preset: Gaming)",
+      "status": "passed"
     },
-    "backupApis": {
-      "本地服务": {
-        "status": "configured",
-        "note": "需启动本地服务器测试"
-      },
-      "v1.mk": {
-        "status": "online",
-        "httpStatus": 400
-      },
-      "xeton.dev": {
-        "status": "online",
-        "httpStatus": 400
-      },
-      "dler.io": {
-        "status": "online",
-        "httpStatus": 400
-      }
+    {
+      "name": "订阅合并预览 (Preview)",
+      "status": "passed"
     },
-    "frontendApi": {
-      "hasApiSources": true,
-      "hasV1mk": true,
-      "hasXeton": true,
-      "hasDler": true,
-      "hasApiSelector": true
+    {
+      "name": "订阅合并与去重 (Merge & Dedupe)",
+      "status": "passed"
+    },
+    {
+      "name": "节点健康检测 (Health Check)",
+      "status": "passed"
     }
-  }
+  ]
 }
