@@ -1,121 +1,126 @@
 <template>
-  <main class="about-page">
-    <section class="about-shell">
-      <header class="hero-panel">
+  <main class="page">
+    <section class="page-shell stack">
+      <header class="hero-surface deploy-hero">
         <div>
-          <p class="eyebrow">发布与部署</p>
-          <h1>部署方式、API 与兼容性说明</h1>
+          <p class="section-label">PRODUCTION DEPLOYMENT</p>
+          <h1 class="title-xl">生产部署、API 和维护命令</h1>
           <p class="subtitle">
-            这里集中说明老王订阅转换器的协议支持、客户端输出、Docker/NAS 部署方式和自动化接口，
-            方便自用、私有化部署或继续二次开发。
+            推荐使用 GHCR 官方镜像和一键脚本部署到服务器，短链接数据持久化到宿主机目录，更新和回滚都走 Docker。
           </p>
         </div>
-        <ShieldCheck :size="34" class="hero-mark" />
+        <ShieldCheck :size="34" />
       </header>
 
-      <section class="feature-grid">
-        <article v-for="item in features" :key="item.title" class="feature-card">
-          <component :is="item.icon" :size="22" />
-          <div>
-            <h2>{{ item.title }}</h2>
-            <p>{{ item.body }}</p>
+      <section class="grid-2">
+        <article class="panel code-card">
+          <div class="card-head">
+            <div>
+              <p class="section-label">ONE COMMAND</p>
+              <h2>服务器一键部署</h2>
+            </div>
+            <button class="btn btn-secondary" type="button" @click="copyCommand(commands.install, 'install')">
+              <Copy :size="16" />
+              <span>{{ copied === 'install' ? '已复制' : '复制' }}</span>
+            </button>
+          </div>
+          <pre><code>{{ commands.install }}</code></pre>
+        </article>
+
+        <article class="panel">
+          <div class="card-head">
+            <div>
+              <p class="section-label">DEFAULTS</p>
+              <h2>默认部署参数</h2>
+            </div>
+            <Container :size="22" />
+          </div>
+          <div class="kv-list">
+            <div><span>镜像</span><strong>ghcr.io/tony-wang1990/laowang-sub-converter:latest</strong></div>
+            <div><span>安装目录</span><strong>/opt/laowang-sub-converter</strong></div>
+            <div><span>数据目录</span><strong>/opt/laowang-sub-converter/data</strong></div>
+            <div><span>默认端口</span><strong>3000</strong></div>
           </div>
         </article>
       </section>
 
-      <section class="section-panel">
-        <div class="section-heading">
+      <section class="panel">
+        <div class="card-head">
           <div>
-            <p class="eyebrow">Docker / NAS</p>
-            <h2>推荐私有化部署方式</h2>
+            <p class="section-label">OPS COMMANDS</p>
+            <h2>维护命令</h2>
           </div>
-          <Container :size="24" />
+          <TerminalSquare :size="22" />
         </div>
 
-        <div class="deploy-grid">
-          <article class="code-card">
-            <div class="code-head">
-              <strong>Docker run</strong>
-              <button @click="copyCommand(dockerRun, 'run')">
-                <Copy :size="16" />
-                <span>{{ copied === 'run' ? '已复制' : '复制' }}</span>
-              </button>
+        <div class="command-grid">
+          <article v-for="item in commandCards" :key="item.key" class="command-card">
+            <div>
+              <strong>{{ item.title }}</strong>
+              <p>{{ item.desc }}</p>
             </div>
-            <pre><code>{{ dockerRun }}</code></pre>
-          </article>
-
-          <article class="code-card">
-            <div class="code-head">
-              <strong>Docker Compose</strong>
-              <button @click="copyCommand(composeRun, 'compose')">
-                <Copy :size="16" />
-                <span>{{ copied === 'compose' ? '已复制' : '复制' }}</span>
-              </button>
-            </div>
-            <pre><code>{{ composeRun }}</code></pre>
-          </article>
-        </div>
-
-        <div class="notice-row">
-          <Cloud :size="20" />
-          <p>
-            GitHub Actions 会自动发布多架构 GHCR 镜像。仓库配置
-            <code>DOCKERHUB_USERNAME</code> 和 <code>DOCKERHUB_TOKEN</code> 后，
-            还会同步推送到 <code>&lt;dockerhub-user&gt;/laowang-sub-converter:latest</code>。
-          </p>
-        </div>
-      </section>
-
-      <section class="section-panel">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">兼容矩阵</p>
-            <h2>主流协议与客户端覆盖</h2>
-          </div>
-          <Route :size="24" />
-        </div>
-
-        <div class="matrix-grid">
-          <article>
-            <h3>输入协议</h3>
-            <div class="pill-grid">
-              <span v-for="item in protocols" :key="item">{{ item }}</span>
-            </div>
-          </article>
-          <article>
-            <h3>输出客户端</h3>
-            <div class="pill-grid">
-              <span v-for="item in clients" :key="item">{{ item }}</span>
-            </div>
+            <pre><code>{{ item.command }}</code></pre>
+            <button class="btn btn-secondary" type="button" @click="copyCommand(item.command, item.key)">
+              <Copy :size="16" />
+              <span>{{ copied === item.key ? '已复制' : '复制命令' }}</span>
+            </button>
           </article>
         </div>
       </section>
 
-      <section class="section-panel">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">HTTP API</p>
-            <h2>可用于自动化的接口</h2>
+      <section class="grid-2">
+        <article class="panel">
+          <div class="card-head">
+            <div>
+              <p class="section-label">CLIENTS</p>
+              <h2>目标客户端</h2>
+            </div>
+            <Route :size="22" />
           </div>
-          <Code2 :size="24" />
+          <div class="pill-grid">
+            <span v-for="item in clients" :key="item">{{ item }}</span>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="card-head">
+            <div>
+              <p class="section-label">PROTOCOLS</p>
+              <h2>输入协议</h2>
+            </div>
+            <FileJson :size="22" />
+          </div>
+          <div class="pill-grid">
+            <span v-for="item in protocols" :key="item">{{ item }}</span>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="card-head">
+          <div>
+            <p class="section-label">HTTP API</p>
+            <h2>接口清单</h2>
+          </div>
+          <Code2 :size="22" />
         </div>
 
         <div class="api-grid">
           <article v-for="api in apis" :key="api.path" class="api-card">
             <span>{{ api.method }}</span>
-            <h3>{{ api.path }}</h3>
+            <strong>{{ api.path }}</strong>
             <p>{{ api.body }}</p>
           </article>
         </div>
       </section>
 
-      <section class="section-panel">
-        <div class="section-heading">
+      <section class="panel">
+        <div class="card-head">
           <div>
-            <p class="eyebrow">项目状态</p>
-            <h2>发布前能力清单</h2>
+            <p class="section-label">RELEASE CHECK</p>
+            <h2>生产校验</h2>
           </div>
-          <Box :size="24" />
+          <CheckCircle2 :size="22" />
         </div>
 
         <div class="check-grid">
@@ -126,12 +131,12 @@
         </div>
 
         <a
-          class="repo-link"
+          class="btn btn-primary repo-link"
           href="https://github.com/tony-wang1990/laowang-sub-converter"
           target="_blank"
           rel="noreferrer"
         >
-          <Github :size="20" />
+          <Github :size="18" />
           <span>打开 GitHub 仓库</span>
         </a>
       </section>
@@ -142,120 +147,57 @@
 <script setup>
 import { ref } from 'vue'
 import {
-  Box,
   CheckCircle2,
-  Cloud,
   Code2,
   Container,
   Copy,
   FileJson,
   Github,
-  HeartPulse,
-  QrCode,
   Route,
-  ShieldCheck
+  ShieldCheck,
+  TerminalSquare
 } from 'lucide-vue-next'
 
 const copied = ref('')
 
-const dockerRun = `docker run -d \\
-  --name laowang-sub-converter \\
-  -p 3000:3000 \\
-  -v ./data:/app/data \\
-  --restart unless-stopped \\
-  ghcr.io/tony-wang1990/laowang-sub-converter:latest`
+const commands = {
+  install: 'curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter/main/scripts/deploy.sh | sudo bash',
+  port: 'curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter/main/scripts/deploy.sh | sudo env PORT=8080 bash',
+  update: 'curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter/main/scripts/deploy.sh | sudo bash -s update',
+  status: 'curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter/main/scripts/deploy.sh | sudo bash -s status',
+  logs: 'curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter/main/scripts/deploy.sh | sudo bash -s logs',
+  uninstall: 'curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter/main/scripts/deploy.sh | sudo bash -s uninstall'
+}
 
-const composeRun = `git clone https://github.com/tony-wang1990/laowang-sub-converter.git
-cd laowang-sub-converter
-docker compose up -d`
-
-const features = [
-  {
-    icon: FileJson,
-    title: '多格式转换',
-    body: '分享链接、Clash YAML、sing-box JSON 和混合订阅内容都会先统一解析，再生成目标格式。'
-  },
-  {
-    icon: Route,
-    title: '客户端适配',
-    body: '按 Clash Meta、Mihomo、Stash、Surge、Loon、Quantumult X、V2RayN、Hiddify 等客户端输出。'
-  },
-  {
-    icon: QrCode,
-    title: '二维码导入',
-    body: '转换后的订阅地址和单节点分享链接可以生成二维码，方便手机客户端扫码导入。'
-  },
-  {
-    icon: HeartPulse,
-    title: '健康检测导出',
-    body: '支持从服务器侧检测节点可用性，筛掉离线节点，并导出在线节点配置。'
-  }
+const commandCards = [
+  { key: 'port', title: '指定端口安装', desc: '把外部访问端口改成 8080。', command: commands.port },
+  { key: 'update', title: '更新镜像', desc: '拉取最新 GHCR 镜像并重启容器。', command: commands.update },
+  { key: 'status', title: '查看状态', desc: '查看 Docker Compose 服务状态。', command: commands.status },
+  { key: 'logs', title: '查看日志', desc: '持续跟踪最近 200 行运行日志。', command: commands.logs },
+  { key: 'uninstall', title: '卸载容器', desc: '停止并移除容器，保留数据目录。', command: commands.uninstall }
 ]
 
-const protocols = [
-  'SS',
-  'SSR',
-  'VMess',
-  'VLESS',
-  'Trojan',
-  'Hysteria',
-  'Hysteria2',
-  'TUIC',
-  'Snell',
-  'HTTP',
-  'SOCKS5',
-  'Clash YAML',
-  'sing-box JSON'
-]
+const protocols = ['SS', 'SSR', 'VMess', 'VLESS', 'VLESS Reality', 'Trojan', 'Hysteria', 'Hysteria2', 'TUIC', 'Snell', 'AnyTLS', 'HTTP', 'SOCKS5', 'Clash YAML', 'sing-box JSON']
 
-const clients = [
-  'Clash',
-  'Clash Meta',
-  'Mihomo',
-  'Stash',
-  'Clash Verge',
-  'FlClash',
-  'Surge',
-  'Surfboard',
-  'Loon',
-  'Quantumult X',
-  'Shadowrocket',
-  'V2RayN',
-  'V2RayNG',
-  'NekoBox',
-  'Hiddify',
-  'sing-box'
-]
+const clients = ['Clash', 'Clash Meta', 'Mihomo', 'Stash', 'Surge', 'Surfboard', 'Loon', 'Quantumult X', 'Shadowrocket', 'V2RayN', 'V2RayNG', 'V2RayU', 'NekoBox', 'Hiddify', 'sing-box', 'SFA', 'SFI', 'SFM']
 
 const apis = [
-  {
-    method: 'GET',
-    path: '/api/convert',
-    body: '把一个订阅地址或原始内容转换成目标客户端格式。'
-  },
-  {
-    method: 'POST',
-    path: '/api/merge',
-    body: '拉取多个订阅、合并去重，并返回一个转换后的输出。'
-  },
-  {
-    method: 'POST',
-    path: '/api/health/check',
-    body: '检测节点可用性，并返回在线节点导出内容。'
-  },
-  {
-    method: 'POST',
-    path: '/api/shortlink',
-    body: '创建可持久化的短链接，支持自定义短码。'
-  }
+  { method: 'GET', path: '/api/convert', body: '订阅转换，输出目标客户端格式。' },
+  { method: 'POST', path: '/api/merge', body: '多订阅拉取、合并、过滤、去重并导出。' },
+  { method: 'POST', path: '/api/merge/preview', body: '预览多订阅合并后的节点统计。' },
+  { method: 'POST', path: '/api/health/check', body: '检测节点连通性并导出在线节点。' },
+  { method: 'POST', path: '/api/shortlink', body: '创建持久化短链接。' },
+  { method: 'GET', path: '/api/shortlink/list', body: '列出短链接和访问次数。' },
+  { method: 'GET', path: '/api/targets', body: '返回支持的目标客户端列表。' },
+  { method: 'GET', path: '/healthz', body: '服务健康检查。' }
 ]
 
 const checklist = [
-  '转换工具无需登录，打开即可使用。',
-  'Docker 镜像包含前端、后端 API 和短链接持久化数据目录。',
-  '健康检测支持订阅地址、原始节点、批量探测和在线节点导出。',
-  '订阅合并、短链接、检测页面已统一为中文控制台风格。',
-  '协议与客户端兼容性已纳入自动化回归测试。'
+  'Docker 镜像包含前端静态资源、后端 API 和短链接持久化目录。',
+  '订阅拉取默认阻止 localhost / 内网地址，降低公开部署 SSRF 风险。',
+  '转换、合并、健康检测和协议矩阵均纳入自动化测试。',
+  '生产构建使用 Vite 8，依赖审计当前为 0 漏洞。',
+  '一键脚本支持安装、更新、状态、日志和卸载。'
 ]
 
 const copyCommand = async (text, key) => {
@@ -268,206 +210,115 @@ const copyCommand = async (text, key) => {
 </script>
 
 <style scoped>
-.about-page {
-  min-height: 100vh;
-  padding: 118px 24px 56px;
-  background:
-    linear-gradient(135deg, rgba(20, 184, 166, 0.12), transparent 34%),
-    linear-gradient(225deg, rgba(99, 102, 241, 0.14), transparent 42%),
-    #020617;
-}
-
-.about-shell {
-  display: grid;
-  gap: 18px;
-  width: min(1120px, 100%);
-  margin: 0 auto;
-}
-
-.hero-panel,
-.section-panel,
-.feature-card {
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 8px;
-  background: rgba(15, 23, 42, 0.78);
-}
-
-.hero-panel {
+.deploy-hero,
+.card-head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 20px;
-  padding: clamp(26px, 4vw, 40px);
+  gap: 18px;
 }
 
-.hero-mark,
-.section-heading > svg,
-.feature-card > svg {
+.deploy-hero > svg,
+.card-head > svg {
   flex: 0 0 auto;
-  color: #67e8f9;
+  color: var(--accent);
 }
 
-.eyebrow {
-  color: #22d3ee;
-  font-size: 0.86rem;
+.card-head {
+  margin-bottom: 14px;
+}
+
+.card-head h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: 1.16rem;
+}
+
+.code-card pre,
+.command-card pre {
+  margin: 0;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(3, 8, 14, 0.78);
+}
+
+.code-card pre {
+  padding: 15px;
+}
+
+code {
+  color: var(--accent-2);
+  font-family: var(--mono);
+  font-size: 0.84rem;
+  line-height: 1.7;
+}
+
+.kv-list {
+  display: grid;
+  gap: 10px;
+}
+
+.kv-list div {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.kv-list span {
+  color: var(--text-muted);
   font-weight: 900;
 }
 
-h1 {
-  max-width: 780px;
-  margin-top: 10px;
-  color: #f8fafc;
-  font-size: clamp(2rem, 3.8vw, 3.45rem);
-  line-height: 1.12;
+.kv-list strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 0.86rem;
 }
 
-h2,
-h3 {
-  color: #f8fafc;
-}
-
-.subtitle {
-  max-width: 760px;
-  margin-top: 14px;
-  color: #cbd5e1;
-  font-size: 1rem;
-  line-height: 1.8;
-}
-
-.feature-grid,
-.deploy-grid,
-.matrix-grid,
+.command-grid,
 .api-grid,
 .check-grid {
   display: grid;
   gap: 12px;
 }
 
-.feature-grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-.feature-card {
-  display: flex;
-  gap: 12px;
-  min-height: 148px;
-  padding: 16px;
-}
-
-.feature-card h2,
-.section-heading h2 {
-  font-size: 1.08rem;
-}
-
-.feature-card p,
-.notice-row p,
-.api-card p,
-.check-row span {
-  color: #94a3b8;
-  font-size: 0.92rem;
-  line-height: 1.7;
-}
-
-.section-panel {
-  display: grid;
-  gap: 16px;
-  padding: 20px;
-}
-
-.section-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.deploy-grid,
-.matrix-grid {
+.command-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.code-card,
-.matrix-grid article,
+.command-card,
 .api-card,
-.check-row,
-.notice-row {
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  border-radius: 8px;
-  background: rgba(2, 6, 23, 0.4);
-}
-
-.code-card {
-  overflow: hidden;
-}
-
-.code-head,
-.notice-row,
 .check-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.035);
 }
 
-.code-head {
-  justify-content: space-between;
-  padding: 12px 14px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
-}
-
-.code-head strong {
-  color: #f8fafc;
-}
-
-.code-head button,
-.repo-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 36px;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 8px;
-  color: #cbd5e1;
-  background: rgba(15, 23, 42, 0.64);
-  font: inherit;
-  font-weight: 900;
-  cursor: pointer;
-  text-decoration: none;
-}
-
-.code-head button {
-  padding: 0 10px;
-}
-
-pre {
-  margin: 0;
-  padding: 14px;
-  overflow: auto;
-}
-
-code {
-  color: #67e8f9;
-  font-family: var(--font-mono);
-  font-size: 0.86rem;
-}
-
-.notice-row {
+.command-card {
+  display: grid;
+  gap: 12px;
   padding: 14px;
 }
 
-.notice-row svg,
-.check-row svg {
-  flex: 0 0 auto;
-  color: #86efac;
+.command-card strong {
+  color: var(--text);
 }
 
-.matrix-grid article {
-  padding: 16px;
+.command-card p {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
 }
 
-.matrix-grid h3 {
-  margin-bottom: 12px;
-  font-size: 1rem;
+.command-card pre {
+  padding: 12px;
 }
 
 .pill-grid {
@@ -478,12 +329,12 @@ code {
 
 .pill-grid span {
   padding: 7px 10px;
-  border: 1px solid rgba(34, 211, 238, 0.22);
-  border-radius: 8px;
-  color: #cbd5e1;
-  background: rgba(8, 47, 73, 0.38);
+  border: 1px solid rgba(49, 214, 255, 0.2);
+  border-radius: var(--radius);
+  color: var(--text-soft);
+  background: rgba(49, 214, 255, 0.055);
   font-size: 0.84rem;
-  font-weight: 800;
+  font-weight: 900;
 }
 
 .api-grid {
@@ -491,58 +342,74 @@ code {
 }
 
 .api-card {
-  min-height: 142px;
-  padding: 16px;
+  min-height: 136px;
+  padding: 14px;
 }
 
 .api-card span {
   display: inline-block;
-  margin-bottom: 10px;
-  color: #67e8f9;
+  margin-bottom: 9px;
+  color: var(--accent);
+  font-family: var(--mono);
   font-size: 0.76rem;
   font-weight: 900;
 }
 
-.api-card h3 {
-  margin-bottom: 8px;
-  font-family: var(--font-mono);
-  font-size: 0.95rem;
+.api-card strong {
+  display: block;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 0.92rem;
+}
+
+.api-card p,
+.check-row span {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.65;
 }
 
 .check-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 14px;
 }
 
 .check-row {
+  display: flex;
+  gap: 10px;
   padding: 13px;
+}
+
+.check-row svg {
+  flex: 0 0 auto;
+  color: var(--accent-2);
 }
 
 .repo-link {
   width: fit-content;
-  padding: 0 14px;
 }
 
 @media (max-width: 980px) {
-  .feature-grid,
-  .api-grid {
+  .command-grid,
+  .api-grid,
+  .check-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 760px) {
-  .about-page {
-    padding: 100px 14px 36px;
-  }
-
-  .hero-panel {
+@media (max-width: 720px) {
+  .deploy-hero,
+  .card-head {
     flex-direction: column;
   }
 
-  .feature-grid,
-  .deploy-grid,
-  .matrix-grid,
+  .command-grid,
   .api-grid,
   .check-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .kv-list div {
     grid-template-columns: 1fr;
   }
 }

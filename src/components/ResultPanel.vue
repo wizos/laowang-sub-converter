@@ -1,20 +1,20 @@
 <template>
-  <section class="result-panel" v-if="result">
-    <div class="result-copy">
+  <section class="panel result-panel" v-if="result">
+    <div class="result-head">
       <div>
-        <p class="eyebrow">转换结果</p>
+        <p class="section-label">OUTPUT READY</p>
         <h2>已生成可导入订阅</h2>
       </div>
       <div class="result-actions">
-        <button class="icon-button" @click="copyLink" :title="copied ? '已复制' : '复制链接'">
+        <button class="icon-button" type="button" @click="copyLink" :title="copied ? '已复制' : '复制链接'">
           <Check v-if="copied" :size="18" />
           <Copy v-else :size="18" />
         </button>
-        <button class="icon-button" @click="downloadConfig" title="下载转换配置" :disabled="downloading">
+        <button class="icon-button" type="button" @click="downloadConfig" title="下载配置" :disabled="downloading">
           <Loader2 v-if="downloading" :size="18" class="spin" />
           <Download v-else :size="18" />
         </button>
-        <button class="icon-button" @click="toggleQR" title="显示二维码" :disabled="qrLoading">
+        <button class="icon-button" type="button" @click="toggleQR" title="显示二维码" :disabled="qrLoading">
           <Loader2 v-if="qrLoading" :size="18" class="spin" />
           <QrCode v-else :size="18" />
         </button>
@@ -22,25 +22,26 @@
     </div>
 
     <div class="result-url">
-      <input type="text" :value="result" readonly ref="urlInput" />
+      <input class="input mono" type="text" :value="result" readonly ref="urlInput" />
     </div>
 
-    <p v-if="error" class="download-error">{{ error }}</p>
+    <p v-if="error" class="alert alert-error">{{ error }}</p>
 
     <transition name="fade">
       <div v-if="showQR" class="qr-panel">
         <div class="qr-header">
           <div>
-            <p class="eyebrow">扫码导入</p>
+            <p class="section-label">SCAN IMPORT</p>
             <h3>{{ clientLabel }} 二维码</h3>
           </div>
-          <span>{{ qrItems.length }} 个二维码</span>
+          <span>{{ qrItems.length }} 项</span>
         </div>
 
         <div class="qr-tabs" v-if="qrItems.length > 1">
           <button
             v-for="(item, index) in qrItems"
             :key="item.id"
+            type="button"
             :class="{ active: activeQrIndex === index }"
             @click="activeQrIndex = index"
           >
@@ -53,7 +54,7 @@
           <div class="qr-meta">
             <strong>{{ activeQrItem.title }}</strong>
             <p>{{ activeQrItem.description }}</p>
-            <button class="copy-qr-value" @click="copyQrValue">
+            <button class="copy-qr-value" type="button" @click="copyQrValue">
               <Copy :size="15" />
               <span>{{ qrValueCopied ? '已复制' : '复制二维码内容' }}</span>
             </button>
@@ -163,18 +164,10 @@ const downloadConfig = async () => {
     }
 
     const blob = await response.blob()
-    const extension = ['singbox', 'sing-box', 'nekobox', 'hiddify', 'sfa', 'sfi', 'sfm'].includes(target.value)
-      ? 'json'
-      : ['clash', 'clashmeta', 'mihomo', 'stash', 'clashverge', 'clash-verge', 'clashnyanpasu', 'clash-nyanpasu', 'flclash'].includes(target.value)
-        ? 'yaml'
-        : ['surge', 'loon', 'surfboard'].includes(target.value)
-          ? 'conf'
-          : 'txt'
-
     const objectUrl = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = objectUrl
-    a.download = `${target.value}-config.${extension}`
+    a.download = `${target.value}-config.${extensionFor(target.value)}`
     a.click()
     URL.revokeObjectURL(objectUrl)
   } catch (err) {
@@ -182,6 +175,13 @@ const downloadConfig = async () => {
   } finally {
     downloading.value = false
   }
+}
+
+const extensionFor = (client) => {
+  if (['singbox', 'sing-box', 'nekobox', 'hiddify', 'sfa', 'sfi', 'sfm'].includes(client)) return 'json'
+  if (['clash', 'clashmeta', 'mihomo', 'stash', 'clashverge', 'clash-verge', 'clashnyanpasu', 'clash-nyanpasu', 'flclash'].includes(client)) return 'yaml'
+  if (['surge', 'loon', 'surfboard'].includes(client)) return 'conf'
+  return 'txt'
 }
 
 const toggleQR = async () => {
@@ -200,7 +200,7 @@ const prepareQrItems = async () => {
     id: 'subscription',
     shortTitle: '订阅',
     title: `${clientLabel.value} 订阅导入`,
-    description: '适合支持扫描订阅地址的客户端，手机端通常最稳定。',
+    description: '适合支持扫描订阅地址的客户端，移动端导入最稳定。',
     value: props.result
   }]
 
@@ -234,7 +234,10 @@ const decodeBase64Lines = (value) => {
   try {
     const normalized = value.trim().replace(/-/g, '+').replace(/_/g, '/')
     const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=')
-    return decodeURIComponent(escape(atob(padded)))
+    const binary = atob(padded)
+    const bytes = Uint8Array.from(binary, char => char.charCodeAt(0))
+    return new TextDecoder()
+      .decode(bytes)
       .split('\n')
       .map(line => line.trim())
       .filter(line => line.includes('://'))
@@ -260,7 +263,7 @@ const renderActiveQr = async () => {
       width: 236,
       margin: 2,
       errorCorrectionLevel: 'M',
-      color: { dark: '#0f172a', light: '#ffffff' }
+      color: { dark: '#071018', light: '#ffffff' }
     })
   } catch {
     qrMessage.value = '二维码内容过长，建议扫描订阅地址二维码或直接下载配置。'
@@ -277,59 +280,51 @@ watch(() => props.result, () => {
 
 <style scoped>
 .result-panel {
-  margin-top: 18px;
-  padding: 20px;
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  border-radius: 8px;
-  background: rgba(15, 23, 42, 0.72);
+  display: grid;
+  gap: 14px;
 }
 
-.result-copy,
+.result-head,
 .qr-header,
 .qr-card {
   display: flex;
   gap: 16px;
 }
 
-.result-copy,
+.result-head,
 .qr-header {
   align-items: center;
   justify-content: space-between;
 }
 
-.result-copy {
-  margin-bottom: 14px;
-}
-
-.eyebrow {
-  margin-bottom: 4px;
-  color: #38bdf8;
-  font-size: 0.8rem;
-  font-weight: 900;
+h2,
+h3 {
+  margin: 0;
+  color: var(--text);
 }
 
 h2 {
-  color: #f8fafc;
-  font-size: 1.16rem;
+  font-size: 1.18rem;
 }
 
 h3 {
-  color: #f8fafc;
   font-size: 1rem;
 }
 
-.result-actions {
+.result-actions,
+.qr-tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
 .icon-button,
 .copy-qr-value,
 .qr-tabs button {
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  border-radius: 8px;
-  color: #e5e7eb;
-  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--text-soft);
+  background: rgba(255, 255, 255, 0.045);
   cursor: pointer;
 }
 
@@ -345,8 +340,9 @@ h3 {
 .copy-qr-value:hover,
 .qr-tabs button:hover,
 .qr-tabs button.active {
-  border-color: #22d3ee;
-  color: #67e8f9;
+  border-color: var(--line-strong);
+  color: var(--accent);
+  background: rgba(49, 214, 255, 0.07);
 }
 
 .icon-button:disabled {
@@ -354,49 +350,22 @@ h3 {
   opacity: 0.65;
 }
 
-.result-url input {
-  width: 100%;
-  min-height: 44px;
-  padding: 0 12px;
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  border-radius: 8px;
-  color: #d1d5db;
-  background: rgba(2, 6, 23, 0.7);
-  font-family: var(--font-mono);
-}
-
-.download-error {
-  margin-top: 10px;
-  color: #fb7185;
-  font-size: 0.9rem;
-}
-
 .qr-panel {
   display: grid;
   gap: 14px;
-  margin-top: 16px;
-  padding: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 8px;
-  background: rgba(2, 6, 23, 0.42);
+  padding-top: 4px;
 }
 
-.qr-header span {
-  color: #94a3b8;
-  font-size: 0.84rem;
-  font-weight: 800;
-}
-
-.qr-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+.qr-header > span {
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 900;
 }
 
 .qr-tabs button {
   min-height: 34px;
   padding: 0 11px;
-  font: inherit;
   font-size: 0.84rem;
   font-weight: 900;
 }
@@ -404,14 +373,15 @@ h3 {
 .qr-card {
   align-items: center;
   padding: 16px;
-  border-radius: 8px;
-  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .qr-card canvas {
   flex: 0 0 auto;
   padding: 10px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   background: #ffffff;
 }
 
@@ -422,12 +392,13 @@ h3 {
 }
 
 .qr-meta strong {
-  color: #f8fafc;
+  color: var(--text);
 }
 
 .qr-meta p,
 .qr-note {
-  color: #94a3b8;
+  margin: 0;
+  color: var(--text-muted);
   font-size: 0.9rem;
   line-height: 1.65;
 }
@@ -440,19 +411,8 @@ h3 {
   width: fit-content;
   min-height: 36px;
   padding: 0 11px;
-  font: inherit;
   font-size: 0.84rem;
   font-weight: 900;
-}
-
-.spin {
-  animation: spin 0.9s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 .fade-enter-active,
@@ -466,7 +426,7 @@ h3 {
 }
 
 @media (max-width: 720px) {
-  .result-copy,
+  .result-head,
   .qr-header,
   .qr-card {
     align-items: stretch;

@@ -1,230 +1,398 @@
 <template>
-  <main class="home">
-    <section class="hero">
-      <div class="hero-copy">
-        <p class="eyebrow">订阅转换控制台</p>
-        <h1>老王订阅转换器</h1>
-        <p class="subtitle">
-          面向 Clash Meta、Mihomo、Stash、sing-box、Surge、Quantumult X、Loon、Shadowrocket、V2RayN 等客户端，
-          提供订阅转换、合并、健康检测、二维码导入和短链接管理。
-        </p>
-        <div class="actions">
-          <router-link to="/converter" class="primary">开始转换</router-link>
-          <router-link to="/health" class="secondary">检测节点</router-link>
+  <main class="page">
+    <section class="page-shell stack">
+      <section class="home-hero hero-surface">
+        <div class="hero-copy">
+          <p class="section-label">SUBSCRIPTION COMMAND CENTER</p>
+          <h1 class="title-xl">订阅转换、合并、检测和导入的一体化控制台</h1>
+          <p class="subtitle">
+            面向 Mihomo、Clash Meta、Surge、Loon、Quantumult X、Shadowrocket、sing-box、V2RayN、Hiddify 等客户端，
+            提供稳定的格式转换、节点整理、健康检测、短链接和二维码导入。
+          </p>
+          <div class="hero-actions">
+            <router-link class="btn btn-primary" to="/converter">
+              <Rocket :size="18" />
+              <span>开始转换</span>
+            </router-link>
+            <router-link class="btn btn-secondary" to="/merge">
+              <GitMerge :size="18" />
+              <span>合并订阅</span>
+            </router-link>
+          </div>
         </div>
-      </div>
 
-      <div class="signal-panel">
-        <div class="panel-top">
-          <Activity :size="18" />
-          <span>协议兼容矩阵</span>
+        <div class="command-panel">
+          <div class="terminal-head">
+            <span></span>
+            <span></span>
+            <span></span>
+            <strong>runtime</strong>
+          </div>
+          <div class="terminal-body">
+            <div v-for="line in terminalLines" :key="line.label" class="terminal-line">
+              <span>{{ line.label }}</span>
+              <strong>{{ line.value }}</strong>
+            </div>
+          </div>
+          <div class="scanline"></div>
         </div>
-        <div class="matrix">
-          <span>SS</span>
-          <span>SSR</span>
-          <span>VMess</span>
-          <span>VLESS</span>
-          <span>Trojan</span>
-          <span>Hysteria2</span>
-          <span>TUIC</span>
-          <span>Snell</span>
-          <span>AnyTLS</span>
-          <span>HTTP / SOCKS5</span>
-          <span>Clash / sing-box</span>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="modules">
-      <router-link v-for="item in modules" :key="item.to" :to="item.to" class="module">
-        <component :is="item.icon" :size="22" />
-        <strong>{{ item.title }}</strong>
-        <span>{{ item.desc }}</span>
-      </router-link>
+      <section class="metric-grid">
+        <article v-for="metric in metrics" :key="metric.label" class="metric-card">
+          <component :is="metric.icon" :size="20" />
+          <span>{{ metric.label }}</span>
+          <strong>{{ metric.value }}</strong>
+        </article>
+      </section>
+
+      <section class="module-grid">
+        <router-link v-for="item in modules" :key="item.to" :to="item.to" class="module-card">
+          <div class="module-icon">
+            <component :is="item.icon" :size="22" />
+          </div>
+          <div>
+            <strong>{{ item.title }}</strong>
+            <p>{{ item.desc }}</p>
+          </div>
+          <ArrowRight :size="18" />
+        </router-link>
+      </section>
+
+      <section class="grid-2">
+        <div class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="section-label">PROTOCOL MATRIX</p>
+              <h2 class="title-lg">协议输入覆盖</h2>
+            </div>
+            <Activity :size="22" />
+          </div>
+          <div class="pill-grid">
+            <span v-for="item in protocols" :key="item">{{ item }}</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="section-label">CLIENT TARGETS</p>
+              <h2 class="title-lg">客户端输出覆盖</h2>
+            </div>
+            <MonitorSmartphone :size="22" />
+          </div>
+          <div class="pill-grid">
+            <span v-for="item in clients" :key="item">{{ item }}</span>
+          </div>
+        </div>
+      </section>
     </section>
   </main>
 </template>
 
 <script setup>
-import { Activity, GitMerge, HeartPulse, Link, RefreshCw } from 'lucide-vue-next'
+import {
+  Activity,
+  ArrowRight,
+  GitMerge,
+  HeartPulse,
+  Link,
+  MonitorSmartphone,
+  QrCode,
+  Rocket,
+  Server,
+  ShieldCheck,
+  Waypoints
+} from 'lucide-vue-next'
+
+const terminalLines = [
+  { label: 'API', value: 'Express /api ready' },
+  { label: 'Docker', value: 'GHCR multi-arch' },
+  { label: 'Storage', value: 'persistent shortlinks' },
+  { label: 'Security', value: 'private URL guard' }
+]
+
+const metrics = [
+  { label: '输入协议', value: '13+', icon: Waypoints },
+  { label: '目标客户端', value: '20+', icon: MonitorSmartphone },
+  { label: '部署方式', value: 'Docker', icon: Server },
+  { label: '安全审计', value: '0 vuln', icon: ShieldCheck }
+]
 
 const modules = [
-  { to: '/converter', title: '订阅转换', desc: '生成目标客户端可直接导入的订阅地址。', icon: RefreshCw },
-  { to: '/merge', title: '订阅合并', desc: '多订阅拉取、去重、预览并导出。', icon: GitMerge },
-  { to: '/health', title: '节点检测', desc: '检测连通性和延迟，导出在线节点。', icon: HeartPulse },
-  { to: '/shortlink', title: '短链接', desc: '为长订阅地址生成固定短码。', icon: Link }
+  { to: '/converter', title: '订阅转换', desc: '输入订阅地址，生成目标客户端可导入配置、下载文件或二维码。', icon: Rocket },
+  { to: '/merge', title: '订阅合并', desc: '批量拉取多个订阅，去重、排序、加地区标识并导出。', icon: GitMerge },
+  { to: '/health', title: '节点检测', desc: '从服务器侧检测 TCP 连通性，导出在线节点配置。', icon: HeartPulse },
+  { to: '/shortlink', title: '短链接管理', desc: '把长订阅地址变成固定短码，支持访问统计和删除。', icon: Link },
+  { to: '/about', title: '部署和 API', desc: '查看一键部署脚本、Docker、API 和生产维护命令。', icon: Server },
+  { to: '/converter', title: '二维码导入', desc: '转换结果可生成订阅二维码，分享链格式支持单节点二维码。', icon: QrCode }
 ]
+
+const protocols = ['SS', 'SSR', 'VMess', 'VLESS', 'VLESS Reality', 'Trojan', 'Hysteria', 'Hysteria2', 'TUIC', 'Snell', 'AnyTLS', 'HTTP', 'SOCKS5', 'Clash YAML', 'sing-box JSON']
+
+const clients = ['Clash', 'Clash Meta', 'Mihomo', 'Stash', 'Surge', 'Surfboard', 'Loon', 'Quantumult X', 'Shadowrocket', 'V2RayN', 'V2RayNG', 'V2RayU', 'NekoBox', 'Hiddify', 'sing-box', 'SFA', 'SFI', 'SFM']
 </script>
 
 <style scoped>
-.home {
-  min-height: 100vh;
-  padding: 118px 24px 56px;
-  background:
-    linear-gradient(135deg, rgba(20, 184, 166, 0.12), transparent 34%),
-    linear-gradient(225deg, rgba(99, 102, 241, 0.14), transparent 42%),
-    #020617;
-}
-
-.hero,
-.modules {
-  width: min(1180px, 100%);
-  margin: 0 auto;
-}
-
-.hero {
+.home-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
-  gap: 20px;
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+  gap: 22px;
   align-items: stretch;
-}
-
-.hero-copy,
-.signal-panel,
-.module {
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 8px;
-  background: rgba(15, 23, 42, 0.78);
+  min-width: 0;
 }
 
 .hero-copy {
-  padding: clamp(28px, 4vw, 44px);
+  display: grid;
+  align-content: center;
+  min-width: 0;
 }
 
-.eyebrow {
-  margin-bottom: 12px;
-  color: #22d3ee;
-  font-size: 0.86rem;
-  font-weight: 900;
-}
-
-h1 {
-  max-width: 720px;
-  color: #f8fafc;
-  font-size: clamp(2.5rem, 5vw, 4.6rem);
-  line-height: 1.05;
-  letter-spacing: 0;
-}
-
-.subtitle {
-  max-width: 720px;
-  margin-top: 18px;
-  color: #cbd5e1;
-  font-size: 1.02rem;
-  line-height: 1.85;
-}
-
-.actions {
+.hero-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 28px;
+  gap: 10px;
+  margin-top: 26px;
 }
 
-.primary,
-.secondary {
-  display: inline-flex;
-  align-items: center;
-  min-height: 46px;
-  padding: 0 18px;
-  border-radius: 8px;
-  font-weight: 900;
-}
-
-.primary {
-  color: #03131a;
-  background: #67e8f9;
-}
-
-.secondary {
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  color: #e5e7eb;
-}
-
-.signal-panel {
-  display: grid;
-  align-content: space-between;
-  gap: 22px;
-  min-height: 352px;
-  padding: 22px;
+.command-panel {
+  position: relative;
+  min-width: 0;
+  min-height: 340px;
   overflow: hidden;
+  border: 1px solid rgba(49, 214, 255, 0.25);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(180deg, rgba(7, 15, 24, 0.96), rgba(3, 8, 14, 0.96)),
+    linear-gradient(rgba(49, 214, 255, 0.08) 1px, transparent 1px);
+  box-shadow: inset 0 0 60px rgba(49, 214, 255, 0.06);
 }
 
-.panel-top {
+.terminal-head {
   display: flex;
   align-items: center;
-  gap: 10px;
-  color: #f8fafc;
-  font-size: 1rem;
+  gap: 7px;
+  min-height: 44px;
+  padding: 0 14px;
+  border-bottom: 1px solid rgba(135, 160, 185, 0.14);
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.terminal-head span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.76;
+}
+
+.terminal-head span:nth-child(2) {
+  background: var(--warning);
+}
+
+.terminal-head span:nth-child(3) {
+  background: var(--accent-2);
+}
+
+.terminal-head strong {
+  margin-left: auto;
+}
+
+.terminal-body {
+  display: grid;
+  gap: 13px;
+  padding: 20px;
+}
+
+.terminal-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgba(135, 160, 185, 0.14);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.035);
+  font-family: var(--mono);
+}
+
+.terminal-line span {
+  color: var(--text-muted);
+}
+
+.terminal-line strong {
+  color: var(--accent-2);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.scanline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 80px;
+  background: linear-gradient(to bottom, transparent, rgba(49, 214, 255, 0.08), transparent);
+  animation: scan 4.2s ease-in-out infinite;
+}
+
+.metric-grid,
+.module-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.metric-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.metric-card,
+.module-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(12, 17, 24, 0.76);
+}
+
+.metric-card {
+  display: grid;
+  gap: 7px;
+  padding: 16px;
+}
+
+.metric-card svg {
+  color: var(--accent);
+}
+
+.metric-card span {
+  color: var(--text-muted);
+  font-size: 0.82rem;
   font-weight: 900;
 }
 
-.panel-top svg {
-  color: #67e8f9;
+.metric-card strong {
+  color: var(--text);
+  font-size: 1.6rem;
+  line-height: 1;
 }
 
-.matrix {
+.module-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.module-card {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.matrix span {
-  display: flex;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
   align-items: center;
-  min-height: 50px;
-  padding: 12px 14px;
-  border: 1px solid rgba(34, 211, 238, 0.22);
-  border-radius: 8px;
-  color: #dbeafe;
-  background: rgba(8, 47, 73, 0.45);
-  font-size: 0.92rem;
-  font-weight: 800;
+  gap: 13px;
+  min-height: 112px;
+  padding: 16px;
+  color: var(--text-soft);
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
 }
 
-.modules {
+.module-card:hover {
+  border-color: var(--line-strong);
+  background: rgba(49, 214, 255, 0.07);
+  transform: translateY(-2px);
+}
+
+.module-icon {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-  margin-top: 18px;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(49, 214, 255, 0.25);
+  border-radius: var(--radius);
+  color: var(--accent);
+  background: rgba(49, 214, 255, 0.08);
 }
 
-.module {
-  display: grid;
-  grid-template-rows: auto auto 1fr;
-  gap: 9px;
-  min-height: 136px;
-  padding: 18px;
-  color: #cbd5e1;
+.module-card strong {
+  color: var(--text);
+  font-size: 1.02rem;
 }
 
-.module:hover {
-  border-color: rgba(34, 211, 238, 0.58);
+.module-card p {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
 }
 
-.module svg {
-  color: #67e8f9;
+.module-card > svg {
+  color: var(--text-muted);
 }
 
-.module strong {
-  color: #ffffff;
-  font-size: 1.06rem;
+.panel-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
 }
 
-.module span {
-  color: #94a3b8;
-  font-size: 0.92rem;
-  line-height: 1.65;
+.panel-heading svg {
+  color: var(--accent);
 }
 
-@media (max-width: 900px) {
-  .home {
-    padding: 100px 14px 36px;
+.pill-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pill-grid span {
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 1px solid rgba(49, 214, 255, 0.2);
+  border-radius: var(--radius);
+  color: var(--text-soft);
+  background: rgba(49, 214, 255, 0.055);
+  font-size: 0.84rem;
+  font-weight: 900;
+}
+
+@keyframes scan {
+  0%, 100% {
+    transform: translateY(-90px);
+  }
+  50% {
+    transform: translateY(350px);
+  }
+}
+
+@media (max-width: 980px) {
+  .home-hero,
+  .module-grid {
+    grid-template-columns: 1fr;
   }
 
-  .hero,
-  .modules {
+  .metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .metric-grid,
+  .module-card {
     grid-template-columns: 1fr;
+  }
+
+  .module-card > svg {
+    display: none;
+  }
+
+  .terminal-line {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .terminal-line strong {
+    text-align: left;
   }
 }
 </style>

@@ -1,25 +1,35 @@
 <template>
-  <header class="header">
-    <router-link to="/" class="logo">
-      <Network :size="24" />
-      <span>老王订阅转换器</span>
+  <header class="topbar">
+    <router-link to="/" class="brand" @click="closeMenu">
+      <span class="brand-symbol">
+        <Network :size="22" />
+      </span>
+      <span class="brand-copy">
+        <strong>LaoWang</strong>
+        <small>SUB OPS</small>
+      </span>
     </router-link>
 
-    <nav class="nav" :class="{ open: menuOpen }">
-      <router-link to="/" @click="closeMenu">控制台</router-link>
-      <router-link to="/converter" @click="closeMenu">订阅转换</router-link>
-      <router-link to="/merge" @click="closeMenu">订阅合并</router-link>
-      <router-link to="/health" @click="closeMenu">节点检测</router-link>
-      <router-link to="/shortlink" @click="closeMenu">短链接</router-link>
-      <router-link to="/about" @click="closeMenu">部署说明</router-link>
+    <nav class="nav" :class="{ open: menuOpen }" aria-label="主导航">
+      <router-link v-for="item in navItems" :key="item.to" :to="item.to" @click="closeMenu">
+        <component :is="item.icon" :size="17" />
+        <span>{{ item.label }}</span>
+      </router-link>
     </nav>
 
-    <div class="header-actions">
-      <a href="https://github.com/tony-wang1990/laowang-sub-converter" target="_blank" title="GitHub">
-        <Github :size="20" />
+    <div class="actions">
+      <a
+        class="icon-action"
+        href="https://github.com/tony-wang1990/laowang-sub-converter"
+        target="_blank"
+        rel="noreferrer"
+        title="GitHub"
+      >
+        <Github :size="19" />
       </a>
-      <button class="menu-toggle" @click="toggleMenu" title="菜单">
-        <Menu :size="22" />
+      <button class="icon-action menu-button" type="button" title="菜单" @click="toggleMenu">
+        <X v-if="menuOpen" :size="20" />
+        <Menu v-else :size="20" />
       </button>
     </div>
   </header>
@@ -27,135 +37,173 @@
 
 <script setup>
 import { ref } from 'vue'
-import { Github, Menu, Network } from 'lucide-vue-next'
+import { Activity, Github, GitMerge, HeartPulse, Home, Link, Menu, Network, Rocket, X } from 'lucide-vue-next'
 
 const menuOpen = ref(false)
+
+const navItems = [
+  { to: '/', label: '总览', icon: Home },
+  { to: '/converter', label: '订阅转换', icon: Rocket },
+  { to: '/merge', label: '订阅合并', icon: GitMerge },
+  { to: '/health', label: '节点检测', icon: HeartPulse },
+  { to: '/shortlink', label: '短链接', icon: Link },
+  { to: '/about', label: '部署 API', icon: Activity }
+]
+
 const toggleMenu = () => {
   menuOpen.value = !menuOpen.value
 }
+
 const closeMenu = () => {
   menuOpen.value = false
 }
 </script>
 
 <style scoped>
-.header {
+.topbar {
   position: fixed;
   top: 14px;
   left: 50%;
   z-index: 100;
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
-  width: min(1220px, calc(100% - 28px));
-  height: 68px;
-  padding: 0 14px 0 18px;
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  border-radius: 8px;
-  background: rgba(2, 6, 23, 0.86);
-  backdrop-filter: blur(18px);
-  box-shadow: 0 18px 54px rgba(0, 0, 0, 0.28);
+  gap: 12px;
+  width: min(1240px, calc(100% - 28px));
+  min-height: 66px;
+  padding: 10px 12px;
+  border: 1px solid rgba(135, 160, 185, 0.2);
+  border-radius: var(--radius);
+  background: rgba(5, 8, 13, 0.88);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(20px);
   transform: translateX(-50%);
 }
 
-.logo,
+.brand,
+.brand-symbol,
 .nav,
-.header-actions,
-.header-actions a,
-.menu-toggle {
+.nav a,
+.actions,
+.icon-action {
   display: flex;
   align-items: center;
 }
 
-.logo {
-  flex: 0 0 auto;
-  gap: 10px;
-  color: #f8fafc;
-  font-size: 1.02rem;
-  font-weight: 900;
-  white-space: nowrap;
+.brand {
+  gap: 11px;
+  min-width: 0;
 }
 
-.logo svg {
-  color: #67e8f9;
+.brand-symbol {
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(49, 214, 255, 0.42);
+  border-radius: var(--radius);
+  color: var(--accent);
+  background: rgba(49, 214, 255, 0.09);
+  box-shadow: inset 0 0 24px rgba(49, 214, 255, 0.08);
+}
+
+.brand-copy {
+  display: grid;
+  gap: 1px;
+}
+
+.brand-copy strong {
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.brand-copy small {
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
 }
 
 .nav {
   justify-content: center;
-  gap: 6px;
+  gap: 5px;
   min-width: 0;
 }
 
-.nav a,
-.header-actions a,
-.menu-toggle {
-  min-height: 42px;
-  border-radius: 8px;
-  color: #94a3b8;
-}
-
 .nav a {
-  display: inline-flex;
-  align-items: center;
-  padding: 0 13px;
-  font-size: 0.94rem;
-  font-weight: 800;
+  gap: 7px;
+  min-height: 42px;
+  padding: 0 11px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 900;
   white-space: nowrap;
+  transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
 }
 
 .nav a:hover,
-.nav a.router-link-active,
-.header-actions a:hover,
-.menu-toggle:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.08);
+.nav a.router-link-active {
+  border-color: rgba(49, 214, 255, 0.26);
+  color: var(--text);
+  background: rgba(49, 214, 255, 0.08);
 }
 
 .nav a.router-link-active {
-  border: 1px solid rgba(34, 211, 238, 0.28);
-  background: rgba(8, 47, 73, 0.55);
+  color: var(--accent);
 }
 
-.header-actions {
-  flex: 0 0 auto;
-  gap: 6px;
+.actions {
+  justify-content: flex-end;
+  gap: 7px;
 }
 
-.header-actions a,
-.menu-toggle {
+.icon-action {
   justify-content: center;
   width: 42px;
-  border: 0;
-  background: transparent;
+  height: 42px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--text-soft);
+  background: rgba(255, 255, 255, 0.04);
   cursor: pointer;
 }
 
-.menu-toggle {
+.icon-action:hover {
+  border-color: var(--line-strong);
+  color: var(--accent);
+}
+
+.menu-button {
   display: none;
 }
 
-@media (max-width: 960px) {
-  .header {
-    height: 64px;
+@media (max-width: 1010px) {
+  .topbar {
+    grid-template-columns: auto auto;
+    justify-content: space-between;
   }
 
-  .menu-toggle {
+  .menu-button {
     display: flex;
   }
 
   .nav {
     position: absolute;
-    top: 74px;
+    top: 76px;
     left: 0;
     right: 0;
     display: none;
     flex-direction: column;
     align-items: stretch;
     padding: 10px;
-    border: 1px solid rgba(148, 163, 184, 0.24);
-    border-radius: 8px;
-    background: rgba(2, 6, 23, 0.96);
-    box-shadow: 0 18px 54px rgba(0, 0, 0, 0.32);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: rgba(5, 8, 13, 0.96);
+    box-shadow: var(--shadow);
   }
 
   .nav.open {
@@ -163,15 +211,17 @@ const closeMenu = () => {
   }
 
   .nav a {
-    min-height: 44px;
+    justify-content: flex-start;
+    min-height: 46px;
   }
 }
 
-@media (max-width: 520px) {
-  .logo span {
-    max-width: 148px;
+@media (max-width: 480px) {
+  .brand-copy strong {
+    max-width: 96px;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 </style>

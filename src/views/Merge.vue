@@ -1,71 +1,104 @@
 <template>
-  <main class="tool-page">
-    <section class="tool-shell">
-      <header class="hero-panel">
+  <main class="page">
+    <section class="page-shell stack">
+      <header class="hero-surface merge-hero">
         <div>
-          <p class="eyebrow">订阅合并</p>
-          <h1>把多个订阅整理成一个干净配置</h1>
-          <p class="subtitle">批量拉取多个订阅地址，合并、去重、预览节点分布，并按目标客户端直接导出。</p>
+          <p class="section-label">MERGE ENGINE</p>
+          <h1 class="title-xl">把多个订阅整理成一份干净配置</h1>
+          <p class="subtitle">
+            批量拉取多个订阅，合并去重、过滤重命名、追加地区标识，并按目标客户端直接导出。
+          </p>
         </div>
-        <GitMerge :size="32" class="hero-mark" />
+        <GitMerge :size="34" />
       </header>
 
-      <section class="control-panel">
+      <section class="panel control-panel">
         <label class="field">
           <span>订阅地址列表</span>
-          <textarea v-model="urlsContent" rows="7" placeholder="https://example.com/sub1&#10;https://example.com/sub2"></textarea>
+          <textarea class="textarea mono" v-model="urlsContent" rows="7" placeholder="https://example.com/sub1&#10;https://example.com/sub2"></textarea>
         </label>
 
         <div class="settings-grid">
           <label class="field">
             <span>目标客户端</span>
-            <select v-model="target">
-              <option value="clash">Clash</option>
-              <option value="clashmeta">Clash Meta</option>
-              <option value="mihomo">Mihomo</option>
-              <option value="stash">Stash</option>
-              <option value="singbox">sing-box</option>
-              <option value="hiddify">Hiddify</option>
-              <option value="nekobox">NekoBox</option>
-              <option value="surge">Surge</option>
-              <option value="surfboard">Surfboard</option>
-              <option value="quantumultx">Quantumult X</option>
-              <option value="loon">Loon</option>
-              <option value="shadowrocket">Shadowrocket</option>
-              <option value="v2rayn">V2RayN</option>
-              <option value="v2rayng">V2RayNG</option>
+            <select class="select" v-model="target">
+              <option v-for="client in targets" :key="client.id" :value="client.id">{{ client.name }}</option>
             </select>
           </label>
 
-          <label class="switch-row">
-            <span><strong>去重</strong><small>移除重复服务器和协议组合</small></span>
+          <label class="field">
+            <span>规则模板</span>
+            <select class="select" v-model="options.rulePreset">
+              <option value="">基础兼容规则</option>
+              <option value="standard">标准日常分流</option>
+              <option value="developer">开发工具分流</option>
+              <option value="gaming">游戏低延迟分流</option>
+              <option value="streaming">流媒体服务分流</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>保留关键词</span>
+            <input class="input" v-model="options.include" placeholder="香港|美国|高级" />
+          </label>
+
+          <label class="field">
+            <span>排除关键词</span>
+            <input class="input" v-model="options.exclude" placeholder="过期|流量|测试" />
+          </label>
+        </div>
+
+        <label class="field">
+          <span>重命名规则</span>
+          <textarea class="textarea mono small" v-model="options.rename" rows="3" placeholder="旧名称->新名称"></textarea>
+        </label>
+
+        <div class="switch-grid">
+          <label class="switch-card">
+            <span><strong>去重</strong><small>按协议、服务器和端口去除重复节点。</small></span>
             <input type="checkbox" v-model="options.dedupe" />
           </label>
-          <label class="switch-row">
-            <span><strong>地区标识</strong><small>为节点名称追加地区标记</small></span>
+          <label class="switch-card">
+            <span><strong>地区标识</strong><small>给节点名称追加地区标识。</small></span>
             <input type="checkbox" v-model="options.emoji" />
           </label>
-          <label class="switch-row">
-            <span><strong>排序</strong><small>按名称整理输出顺序</small></span>
+          <label class="switch-card">
+            <span><strong>排序</strong><small>按名称整理输出顺序。</small></span>
             <input type="checkbox" v-model="options.sort" />
+          </label>
+          <label class="switch-card">
+            <span><strong>启用 UDP</strong><small>目标客户端支持时启用 UDP。</small></span>
+            <input type="checkbox" v-model="options.udp" />
+          </label>
+          <label class="switch-card">
+            <span><strong>跳过证书校验</strong><small>适合自签名或特殊节点。</small></span>
+            <input type="checkbox" v-model="options.skipCert" />
           </label>
         </div>
 
         <div class="actions">
-          <button class="secondary" @click="previewMerge" :disabled="loading || !urls.length">
+          <button class="btn btn-secondary" type="button" @click="previewMerge" :disabled="loading || !urls.length">
             <Eye :size="18" />
             <span>{{ loading ? '处理中' : '预览节点' }}</span>
           </button>
-          <button class="primary" @click="downloadMerge" :disabled="loading || !urls.length">
+          <button class="btn btn-primary" type="button" @click="downloadMerge" :disabled="loading || !urls.length">
             <Download :size="18" />
             <span>合并并下载</span>
           </button>
         </div>
 
-        <p v-if="error" class="error">{{ error }}</p>
+        <p v-if="error" class="alert alert-error">{{ error }}</p>
       </section>
 
-      <section v-if="previewResult" class="result-panel">
+      <section v-if="previewResult" class="panel result-panel">
+        <div class="result-heading">
+          <div>
+            <p class="section-label">PREVIEW</p>
+            <h2>节点预览</h2>
+          </div>
+          <span>{{ urls.length }} 个订阅源</span>
+        </div>
+
         <div class="summary-grid">
           <div class="summary-card">
             <span>总节点</span>
@@ -79,8 +112,11 @@
 
         <div class="preview-list">
           <article v-for="node in previewResult.nodes" :key="`${node.type}-${node.server}-${node.port}-${node.name}`">
-            <strong>{{ node.name }}</strong>
-            <span>{{ node.type.toUpperCase() }} · {{ node.server }}:{{ node.port }}</span>
+            <div>
+              <strong>{{ node.name }}</strong>
+              <small>{{ node.type.toUpperCase() }}</small>
+            </div>
+            <span>{{ node.server }}:{{ node.port }}</span>
           </article>
         </div>
       </section>
@@ -89,7 +125,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { Download, Eye, GitMerge } from 'lucide-vue-next'
 
 const urlsContent = ref('')
@@ -97,9 +133,43 @@ const target = ref('clashmeta')
 const loading = ref(false)
 const error = ref('')
 const previewResult = ref(null)
-const options = ref({ dedupe: true, emoji: true, sort: false })
+const options = reactive({
+  dedupe: true,
+  emoji: true,
+  sort: false,
+  udp: true,
+  skipCert: false,
+  include: '',
+  exclude: '',
+  rename: '',
+  rulePreset: 'standard'
+})
 
-const urls = computed(() => urlsContent.value.split('\n').map(url => url.trim()).filter(url => /^https?:\/\//i.test(url)))
+const targets = [
+  { id: 'clash', name: 'Clash YAML' },
+  { id: 'clashmeta', name: 'Clash Meta YAML' },
+  { id: 'mihomo', name: 'Mihomo YAML' },
+  { id: 'stash', name: 'Stash YAML' },
+  { id: 'singbox', name: 'sing-box JSON' },
+  { id: 'hiddify', name: 'Hiddify JSON' },
+  { id: 'nekobox', name: 'NekoBox JSON' },
+  { id: 'sfa', name: 'SFA JSON' },
+  { id: 'sfi', name: 'SFI JSON' },
+  { id: 'sfm', name: 'SFM JSON' },
+  { id: 'surge', name: 'Surge CONF' },
+  { id: 'surfboard', name: 'Surfboard CONF' },
+  { id: 'quantumultx', name: 'Quantumult X' },
+  { id: 'loon', name: 'Loon CONF' },
+  { id: 'shadowrocket', name: 'Shadowrocket' },
+  { id: 'v2rayn', name: 'V2RayN' },
+  { id: 'v2rayng', name: 'V2RayNG' },
+  { id: 'v2rayu', name: 'V2RayU' }
+]
+
+const urls = computed(() => urlsContent.value
+  .split('\n')
+  .map(url => url.trim())
+  .filter(url => /^https?:\/\//i.test(url)))
 
 const previewMerge = async () => {
   loading.value = true
@@ -108,7 +178,7 @@ const previewMerge = async () => {
     const response = await fetch('/api/merge/preview', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ urls: urls.value, dedupe: options.value.dedupe })
+      body: JSON.stringify({ urls: urls.value, dedupe: options.dedupe })
     })
     const data = await response.json()
     if (!response.ok || data.error) throw new Error(data.error || `HTTP ${response.status}`)
@@ -127,7 +197,7 @@ const downloadMerge = async () => {
     const response = await fetch('/api/merge', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ urls: urls.value, target: target.value, ...options.value })
+      body: JSON.stringify({ urls: urls.value, target: target.value, ...options })
     })
     if (!response.ok) {
       const text = await response.text()
@@ -156,177 +226,38 @@ const extensionFor = (client) => {
 </script>
 
 <style scoped>
-.tool-page {
-  min-height: 100vh;
-  padding: 118px 24px 56px;
-  background:
-    linear-gradient(135deg, rgba(20, 184, 166, 0.12), transparent 34%),
-    linear-gradient(225deg, rgba(99, 102, 241, 0.14), transparent 42%),
-    #020617;
-}
-
-.tool-shell {
-  display: grid;
+.merge-hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: 18px;
-  width: min(1120px, 100%);
-  margin: 0 auto;
 }
 
-.hero-panel,
-.control-panel,
-.result-panel {
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 8px;
-  background: rgba(15, 23, 42, 0.78);
-}
-
-.hero-panel {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  padding: clamp(26px, 4vw, 40px);
-}
-
-.hero-mark {
+.merge-hero > svg {
   flex: 0 0 auto;
-  color: #67e8f9;
-}
-
-.eyebrow {
-  color: #22d3ee;
-  font-size: 0.86rem;
-  font-weight: 900;
-}
-
-h1 {
-  max-width: 760px;
-  margin-top: 10px;
-  color: #f8fafc;
-  font-size: clamp(2rem, 3.8vw, 3.45rem);
-  line-height: 1.12;
-}
-
-.subtitle {
-  max-width: 720px;
-  margin-top: 14px;
-  color: #cbd5e1;
-  font-size: 1rem;
-  line-height: 1.8;
+  color: var(--accent);
 }
 
 .control-panel,
 .result-panel {
   display: grid;
-  gap: 16px;
-  padding: 20px;
+  gap: 15px;
 }
 
-.field {
+.settings-grid {
   display: grid;
-  gap: 8px;
-}
-
-.field span {
-  color: #cbd5e1;
-  font-size: 0.88rem;
-  font-weight: 900;
-}
-
-textarea,
-select {
-  width: 100%;
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  border-radius: 8px;
-  color: #f8fafc;
-  background: rgba(2, 6, 23, 0.72);
-  font: inherit;
-}
-
-textarea {
-  padding: 14px;
-  font-family: var(--font-mono);
-  resize: vertical;
-}
-
-select {
-  min-height: 44px;
-  padding: 0 12px;
-}
-
-.settings-grid,
-.summary-grid {
-  display: grid;
-  grid-template-columns: minmax(190px, 1.2fr) repeat(3, minmax(170px, 1fr));
-  gap: 12px;
-}
-
-.summary-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-.switch-row,
-.summary-card,
-.preview-list article {
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  border-radius: 8px;
-  background: rgba(2, 6, 23, 0.4);
-}
-
-.switch-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   gap: 12px;
-  min-height: 72px;
-  padding: 12px;
 }
 
-.switch-row strong,
-.switch-row small {
-  display: block;
+.textarea.small {
+  min-height: 92px;
 }
 
-.switch-row strong {
-  color: #f8fafc;
-  font-size: 0.92rem;
-}
-
-.switch-row small {
-  margin-top: 3px;
-  color: #94a3b8;
-  font-size: 0.78rem;
-  line-height: 1.4;
-}
-
-.switch-row input {
-  flex: 0 0 auto;
-  width: 42px;
-  height: 24px;
-  appearance: none;
-  border-radius: 999px;
-  background: #334155;
-  cursor: pointer;
-  position: relative;
-}
-
-.switch-row input::after {
-  content: '';
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #fff;
-  transition: transform 0.18s ease;
-}
-
-.switch-row input:checked {
-  background: #0891b2;
-}
-
-.switch-row input:checked::after {
-  transform: translateX(18px);
+.switch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
 }
 
 .actions {
@@ -335,94 +266,101 @@ select {
   gap: 10px;
 }
 
-.primary,
-.secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 0 14px;
-  border-radius: 8px;
-  font: inherit;
-  font-size: 0.94rem;
+.result-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.result-heading h2 {
+  margin: 0;
+  color: var(--text);
+}
+
+.result-heading > span {
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 0.78rem;
   font-weight: 900;
-  cursor: pointer;
 }
 
-.primary {
-  border: 0;
-  color: #03131a;
-  background: #67e8f9;
-}
-
-.secondary {
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  color: #cbd5e1;
-  background: rgba(15, 23, 42, 0.64);
-}
-
-.primary:disabled,
-.secondary:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
 }
 
 .summary-card {
-  padding: 16px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .summary-card span {
-  color: #94a3b8;
-  font-size: 0.84rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 900;
 }
 
 .summary-card strong {
   display: block;
-  margin-top: 6px;
-  color: #f8fafc;
-  font-size: 1.65rem;
+  margin-top: 5px;
+  color: var(--text);
+  font-size: 1.55rem;
+  line-height: 1;
 }
 
 .preview-list {
   display: grid;
-  gap: 10px;
-  max-height: 360px;
+  gap: 9px;
+  max-height: 390px;
   overflow: auto;
 }
 
 .preview-list article {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
   gap: 14px;
   padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.preview-list strong,
+.preview-list small {
+  display: block;
 }
 
 .preview-list strong {
-  color: #f8fafc;
+  color: var(--text);
 }
 
+.preview-list small,
 .preview-list span {
-  color: #94a3b8;
-  white-space: nowrap;
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 0.82rem;
 }
 
-.error {
-  color: #fecdd3;
+@media (max-width: 980px) {
+  .settings-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-@media (max-width: 900px) {
-  .tool-page {
-    padding: 100px 14px 36px;
+@media (max-width: 720px) {
+  .merge-hero,
+  .result-heading {
+    flex-direction: column;
   }
 
   .settings-grid,
-  .summary-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .hero-panel,
   .preview-list article {
-    flex-direction: column;
+    grid-template-columns: 1fr;
   }
 }
 </style>

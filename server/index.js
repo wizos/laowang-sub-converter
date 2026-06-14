@@ -1,5 +1,6 @@
 import express from 'express'
 import cors from 'cors'
+import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
@@ -15,6 +16,9 @@ const __dirname = path.dirname(__filename)
 
 const app = express()
 const PORT = process.env.PORT || 3000
+const distDir = path.join(__dirname, '../dist')
+const hasBuiltFrontend = fs.existsSync(path.join(distDir, 'index.html'))
+const shouldServeFrontend = process.env.NODE_ENV === 'production' || hasBuiltFrontend
 
 app.use(cors())
 app.use(express.json())
@@ -44,17 +48,17 @@ const serverHealth = (req, res) => {
 
 app.get('/healthz', serverHealth)
 app.get('/health', (req, res, next) => {
-    if (process.env.NODE_ENV === 'production' && req.headers.accept?.includes('text/html')) {
+    if (shouldServeFrontend && req.headers.accept?.includes('text/html')) {
         return next()
     }
     return serverHealth(req, res)
 })
 
-if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, '../dist')))
+if (shouldServeFrontend) {
+    app.use(express.static(distDir))
 
     app.get('*', (req, res) => {
-        res.sendFile(path.join(__dirname, '../dist/index.html'))
+        res.sendFile(path.join(distDir, 'index.html'))
     })
 }
 

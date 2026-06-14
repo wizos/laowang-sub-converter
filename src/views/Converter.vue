@@ -1,89 +1,95 @@
 <template>
-  <div class="converter-page">
-    <section class="workspace">
-      <aside class="status-rail">
-        <div class="brand-mark">
-          <Network :size="28" />
+  <main class="page">
+    <section class="page-shell stack">
+      <section class="converter-hero hero-surface">
+        <div>
+          <p class="section-label">CONVERSION PIPELINE</p>
+          <h1 class="title-xl">生成客户端可直接导入的订阅配置</h1>
+          <p class="subtitle">
+            输入订阅地址，选择目标客户端，系统会按协议兼容性输出 YAML、CONF、JSON 或分享链接。
+          </p>
         </div>
-        <div class="rail-item active">
-          <span>01</span>
-          <strong>来源</strong>
-        </div>
-        <div class="rail-item" :class="{ active: selectedClient }">
-          <span>02</span>
-          <strong>客户端</strong>
-        </div>
-        <div class="rail-item" :class="{ active: convertedUrl }">
-          <span>03</span>
-          <strong>导入</strong>
-        </div>
-      </aside>
+        <div class="status-pill">API 在线</div>
+      </section>
 
-      <main class="console">
-        <header class="console-header">
+      <section class="pipeline">
+        <article v-for="step in steps" :key="step.id" class="step-card" :class="{ active: step.active }">
+          <span>{{ step.id }}</span>
+          <strong>{{ step.title }}</strong>
+          <small>{{ step.desc }}</small>
+        </article>
+      </section>
+
+      <section class="panel source-panel">
+        <div class="source-head">
           <div>
-            <p class="eyebrow">订阅转换</p>
-            <h1>生成可直接导入的客户端配置</h1>
-            <p class="subtitle">粘贴订阅地址，选择目标客户端，生成稳定的转换订阅链接，也可以继续下载配置或生成二维码。</p>
+            <p class="section-label">SOURCE</p>
+            <h2>订阅来源</h2>
           </div>
-          <div class="health-pill">
-            <span></span>
-            本地服务可用
-          </div>
-        </header>
+          <span class="mono">{{ selectedApiLabel }}</span>
+        </div>
 
-        <section class="input-panel">
-          <label class="source-field">
-            <span>订阅地址</span>
-            <textarea
-              v-model="subscriptionUrl"
-              placeholder="https://example.com/subscription?token=..."
-              rows="5"
-            ></textarea>
-          </label>
+        <label class="field">
+          <span>订阅地址</span>
+          <textarea
+            class="textarea mono"
+            v-model="subscriptionUrl"
+            placeholder="https://example.com/subscription?token=..."
+            rows="5"
+          ></textarea>
+        </label>
 
-          <div class="api-strip">
-            <button
-              v-for="api in apiSources"
-              :key="api.id"
-              :class="{ active: selectedApi === api.id }"
-              @click="selectedApi = api.id"
-              :title="api.desc"
-            >
-              <Server :size="16" />
-              <span>{{ api.name }}</span>
-            </button>
-          </div>
-        </section>
+        <div class="api-grid">
+          <button
+            v-for="api in apiSources"
+            :key="api.id"
+            type="button"
+            class="api-chip"
+            :class="{ active: selectedApi === api.id }"
+            @click="selectedApi = api.id"
+            :title="api.desc"
+          >
+            <Server :size="16" />
+            <span>{{ api.name }}</span>
+          </button>
+        </div>
+      </section>
 
-        <ClientSelector v-model="selectedClient" />
-        <AdvancedOptions
-          :model-value="advancedOptions"
-          @update:model-value="updateAdvancedOptions"
-        />
+      <ClientSelector v-model="selectedClient" />
 
-        <section class="action-bar">
-          <button class="primary-action" @click="convertSubscription" :disabled="!canConvert || loading">
+      <AdvancedOptions
+        :model-value="advancedOptions"
+        @update:model-value="updateAdvancedOptions"
+      />
+
+      <section class="panel action-panel">
+        <div>
+          <p class="section-label">EXECUTE</p>
+          <h2>输出任务</h2>
+          <p>当前目标：<strong>{{ selectedClient }}</strong>，规则模板：<strong>{{ advancedOptions.rulePreset || 'basic' }}</strong></p>
+        </div>
+        <div class="action-buttons">
+          <button class="btn btn-primary" type="button" @click="convertSubscription" :disabled="!canConvert || loading">
             <Loader2 v-if="loading" :size="18" class="spin" />
             <RefreshCw v-else :size="18" />
             <span>{{ loading ? '生成中' : '生成订阅链接' }}</span>
           </button>
-          <button class="secondary-action" @click="resetForm">
+          <button class="btn btn-secondary" type="button" @click="resetForm">
             <RotateCcw :size="18" />
             <span>重置</span>
           </button>
-        </section>
+        </div>
+      </section>
 
-        <ResultPanel v-if="convertedUrl" :result="convertedUrl" />
-        <p v-if="error" class="error-message">{{ error }}</p>
-      </main>
+      <ResultPanel v-if="convertedUrl" :result="convertedUrl" />
+      <p v-if="error" class="alert alert-error">{{ error }}</p>
     </section>
-  </div>
+  </main>
 </template>
 
 <script setup>
 import { computed, reactive, ref } from 'vue'
-import { Loader2, Network, RefreshCw, RotateCcw, Server } from 'lucide-vue-next'
+import { Loader2, RefreshCw, RotateCcw, Server } from 'lucide-vue-next'
 import ClientSelector from '../components/ClientSelector.vue'
 import AdvancedOptions from '../components/AdvancedOptions.vue'
 import ResultPanel from '../components/ResultPanel.vue'
@@ -96,7 +102,7 @@ const convertedUrl = ref('')
 const error = ref('')
 
 const apiSources = [
-  { id: 'local', name: '本地服务', desc: '使用当前项目后端', url: '' },
+  { id: 'local', name: '本地服务', desc: '使用当前部署的后端 API', url: '' },
   { id: 'v1mk', name: 'v1.mk', desc: '第三方转换 API', url: 'https://api.v1.mk' },
   { id: 'xeton', name: 'xeton.dev', desc: '第三方转换 API', url: 'https://sub.xeton.dev' },
   { id: 'dler', name: 'dler.io', desc: '第三方转换 API', url: 'https://api.dler.io' }
@@ -114,7 +120,14 @@ const advancedOptions = reactive({
 })
 
 const currentApi = computed(() => apiSources.find(api => api.id === selectedApi.value) || apiSources[0])
+const selectedApiLabel = computed(() => currentApi.value.name)
 const canConvert = computed(() => subscriptionUrl.value.trim() && selectedClient.value)
+
+const steps = computed(() => [
+  { id: '01', title: '输入来源', desc: subscriptionUrl.value.trim() ? '已填写订阅地址' : '等待订阅地址', active: Boolean(subscriptionUrl.value.trim()) },
+  { id: '02', title: '选择目标', desc: selectedClient.value || '选择客户端', active: Boolean(selectedClient.value) },
+  { id: '03', title: '生成导入', desc: convertedUrl.value ? '输出已就绪' : '等待执行', active: Boolean(convertedUrl.value) }
+])
 
 const updateAdvancedOptions = value => {
   Object.assign(advancedOptions, value || {})
@@ -172,256 +185,123 @@ const resetForm = () => {
 </script>
 
 <style scoped>
-.converter-page {
-  min-height: 100vh;
-  padding: 118px 24px 48px;
-  background:
-    linear-gradient(135deg, rgba(20, 184, 166, 0.12), transparent 34%),
-    linear-gradient(225deg, rgba(99, 102, 241, 0.14), transparent 40%),
-    #020617;
+.converter-hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
 }
 
-.workspace {
+.pipeline {
   display: grid;
-  grid-template-columns: 96px minmax(0, 1080px);
-  gap: 20px;
-  width: min(1200px, 100%);
-  margin: 0 auto;
-}
-
-.status-rail {
-  display: grid;
-  align-content: start;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
 
-.brand-mark,
-.rail-item {
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 8px;
-  background: rgba(15, 23, 42, 0.74);
-}
-
-.brand-mark {
+.step-card {
   display: grid;
-  place-items: center;
-  height: 72px;
-  color: #67e8f9;
+  gap: 6px;
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(12, 17, 24, 0.72);
 }
 
-.rail-item {
-  padding: 14px 12px;
-  color: #64748b;
+.step-card.active {
+  border-color: var(--line-strong);
+  background: rgba(49, 214, 255, 0.08);
 }
 
-.rail-item.active {
-  border-color: rgba(34, 211, 238, 0.58);
-  color: #f8fafc;
-  background: rgba(8, 47, 73, 0.68);
-}
-
-.rail-item span,
-.rail-item strong {
-  display: block;
-}
-
-.rail-item span {
-  font-size: 0.74rem;
-  font-weight: 800;
-}
-
-.rail-item strong {
-  margin-top: 4px;
-  font-size: 0.9rem;
-}
-
-.console {
-  display: grid;
-  gap: 18px;
-  padding: 24px;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 8px;
-  background: rgba(15, 23, 42, 0.78);
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.34);
-}
-
-.console-header {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-}
-
-.eyebrow {
-  margin-bottom: 8px;
-  color: #22d3ee;
-  font-size: 0.86rem;
+.step-card span {
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.78rem;
   font-weight: 900;
 }
 
-h1 {
-  max-width: 720px;
-  color: #f8fafc;
-  font-size: clamp(2rem, 3.8vw, 3.45rem);
-  line-height: 1.12;
-  letter-spacing: 0;
+.step-card strong {
+  color: var(--text);
 }
 
-.subtitle {
-  max-width: 760px;
-  margin-top: 14px;
-  color: #cbd5e1;
-  font-size: 1rem;
-  line-height: 1.8;
+.step-card small {
+  color: var(--text-muted);
+  font-size: 0.82rem;
 }
 
-.health-pill {
-  display: inline-flex;
-  align-items: center;
-  align-self: flex-start;
-  gap: 9px;
-  min-height: 38px;
-  padding: 0 12px;
-  border: 1px solid rgba(34, 197, 94, 0.28);
-  border-radius: 8px;
-  color: #bbf7d0;
-  background: rgba(22, 101, 52, 0.18);
-  font-size: 0.86rem;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.health-pill span {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #22c55e;
-}
-
-.input-panel {
+.source-panel,
+.action-panel {
   display: grid;
   gap: 14px;
 }
 
-.source-field {
-  display: grid;
-  gap: 8px;
+.source-head,
+.action-panel {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
 }
 
-.source-field span {
-  color: #f8fafc;
-  font-size: 0.9rem;
+.source-head h2,
+.action-panel h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: 1.18rem;
+}
+
+.source-head > span {
+  color: var(--accent-2);
+  font-size: 0.82rem;
   font-weight: 900;
 }
 
-textarea {
-  width: 100%;
-  padding: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  border-radius: 8px;
-  color: #f8fafc;
-  background: rgba(2, 6, 23, 0.78);
-  font: 0.95rem/1.6 var(--font-mono);
-  resize: vertical;
-}
-
-textarea:focus {
-  outline: none;
-  border-color: #22d3ee;
-}
-
-.api-strip,
-.action-bar {
+.api-grid,
+.action-buttons {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
 }
 
-.api-strip button,
-.primary-action,
-.secondary-action {
+.api-chip {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 8px;
-  min-height: 44px;
-  padding: 0 15px;
-  border-radius: 8px;
-  font: inherit;
-  font-size: 0.94rem;
-  font-weight: 900;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--text-soft);
+  background: rgba(255, 255, 255, 0.04);
   cursor: pointer;
+  font-weight: 900;
 }
 
-.api-strip button,
-.secondary-action {
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  color: #cbd5e1;
-  background: rgba(15, 23, 42, 0.64);
+.api-chip.active,
+.api-chip:hover {
+  border-color: var(--line-strong);
+  color: var(--accent);
+  background: rgba(49, 214, 255, 0.08);
 }
 
-.api-strip button.active {
-  border-color: #22d3ee;
-  color: #ffffff;
-  background: rgba(8, 145, 178, 0.22);
+.action-panel p {
+  margin: 6px 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
 }
 
-.action-bar {
-  padding-top: 4px;
+.action-panel strong {
+  color: var(--text-soft);
 }
 
-.primary-action {
-  border: 0;
-  color: #03131a;
-  background: #67e8f9;
-}
-
-.primary-action:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
-}
-
-.secondary-action:hover {
-  border-color: #22d3ee;
-  color: #ffffff;
-}
-
-.error-message {
-  padding: 12px;
-  border: 1px solid rgba(251, 113, 133, 0.3);
-  border-radius: 8px;
-  color: #fecdd3;
-  background: rgba(127, 29, 29, 0.25);
-}
-
-.spin {
-  animation: spin 0.9s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (max-width: 820px) {
-  .converter-page {
-    padding: 100px 14px 32px;
-  }
-
-  .workspace {
-    grid-template-columns: 1fr;
-  }
-
-  .status-rail {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .console {
-    padding: 16px;
-  }
-
-  .console-header {
+@media (max-width: 780px) {
+  .converter-hero,
+  .source-head,
+  .action-panel {
     flex-direction: column;
+  }
+
+  .pipeline {
+    grid-template-columns: 1fr;
   }
 }
 </style>

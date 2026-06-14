@@ -1,57 +1,8 @@
-﻿# LaoWang Sub-converter
+# LaoWang Sub Converter
 
-<div align="center">
+Production-ready private subscription converter with a web console and backend APIs for conversion, merge, health check, short links, and client exports.
 
-![Logo](https://img.shields.io/badge/LaoWang-Sub--converter-blue?style=for-the-badge)
-![License](https://img.shields.io/github/license/tony-wang1990/laowang-sub-converter?style=for-the-badge)
-![Node](https://img.shields.io/badge/Node.js-20.19%2B-green?style=for-the-badge)
-
-**Powerful Subscription Converter - Supports Multiple Protocols and Clients**
-
-English | [简体中文](./README.md)
-
-</div>
-
----
-
-## Preview
-
-<div align="center">
-
-<a href="https://laowang-sub-conv.vercel.app/">
-  <img src="https://img.shields.io/badge/Click_Demo-laowang--sub--conv.vercel.app-38b2ac?style=for-the-badge" alt="Demo">
-</a>
-
-<br><br>
-
-| Home | Converter |
-|:---:|:---:|
-| ![Home](./docs/screenshots/home.png) | ![Converter](./docs/screenshots/converter.png) |
-
-</div>
-
----
-
-## Features
-
--  **Multi-Protocol Support** - SS, SSR, VMess, VLESS (incl. Reality), Trojan, Hysteria, Hysteria2, TUIC, Snell, AnyTLS
--  **Multi-Client Support** - Clash, Surge, Quantumult X, Shadowrocket, Loon, V2RayN, V2RayNG, NekoBox, sing-box etc.
--  **Short Link Service** - Generate short links for easy sharing, supports access statistics
--  **Multi-Theme** - 8 beautiful themes to switch freely
--  **Multi-Language** - Simplified Chinese, English
--  **Multiple Deployment** - Docker, Cloudflare, Vercel, Netlify
--  **Backup API** - Supports automatic failover to backup backend APIs
-
----
-
-##  Deployment Guide
-
-###  Recommended (Full Features)
-> Includes backend API and persistent storage, supports all features including Short Links.
-
-#### One-command VPS Deploy
-
-Run this on an Ubuntu/Debian/CentOS Linux server:
+## Quick Deploy
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter/main/scripts/deploy.sh | sudo bash
@@ -59,119 +10,51 @@ curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter
 
 Defaults:
 
-- Install directory: `/opt/laowang-sub-converter`
-- Data directory: `/opt/laowang-sub-converter/data`
-- Port: `3000`
-
-Common commands:
-
-```bash
-# Install on another port
-curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter/main/scripts/deploy.sh | sudo env PORT=8080 bash
-
-# Update to the latest image
-curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter/main/scripts/deploy.sh | sudo bash -s update
-
-# Show status
-curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter/main/scripts/deploy.sh | sudo bash -s status
-
-# Follow logs
-curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter/main/scripts/deploy.sh | sudo bash -s logs
-
-# Stop containers, keep data
-curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter/main/scripts/deploy.sh | sudo bash -s uninstall
+```text
+Image: ghcr.io/tony-wang1990/laowang-sub-converter:latest
+Install dir: /opt/laowang-sub-converter
+Data dir: /opt/laowang-sub-converter/data
+Port: 3000
+URL: http://SERVER_IP:3000
 ```
 
-| Platform | Button / Command |
-| :--- | :--- |
-| **Docker (VPS)** | `docker-compose up -d` |
-| **Zeabur** | [![Deploy on Zeabur](https://zeabur.com/button.svg)](https://zeabur.com/new) |
-| **Railway** | [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https%3A%2F%2Fgithub.com%2Ftony-wang1990%2Flaowang-sub-converter) |
-| **Render** | [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/tony-wang1990/laowang-sub-converter) |
-| **Fly.io** | `fly launch` |
-| **Koyeb** | [![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&repository=tony-wang1990/laowang-sub-converter) |
+Update:
 
-###  Frontend/Demo (Limited)
-> Mainly for frontend demonstration. **Features requiring storage like Short Links will not work permanently** (no persistent database).
+```bash
+curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter/main/scripts/deploy.sh | sudo bash -s update
+```
 
-| Platform | Button |
-| :--- | :--- |
-| **Vercel** | [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/tony-wang1990/laowang-sub-converter) |
-| **Netlify** | [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/tony-wang1990/laowang-sub-converter) |
-| **Cloudflare Pages** | [![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/tony-wang1990/laowang-sub-converter) |
+Logs:
 
----
+```bash
+curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter/main/scripts/deploy.sh | sudo bash -s logs
+```
 
-##  Local Development
+## Features
+
+- Convert subscriptions to Clash, Mihomo, Surge, Loon, Quantumult X, Shadowrocket, V2RayN, sing-box and more.
+- Merge multiple subscriptions with dedupe, sorting, filtering, renaming, and rule presets.
+- Check node TCP reachability from the server and export online nodes.
+- Create persistent short links with click counts.
+- Generate QR codes for subscription URLs and supported share links.
+
+## Development
 
 Requires Node.js `>=20.19.0`.
 
 ```bash
-git clone https://github.com/tony-wang1990/laowang-sub-converter.git
-cd laowang-sub-converter
 npm install
 npm run dev
 ```
 
-### Docker Container (Testing)
+Production build:
 
 ```bash
-docker run -d -p 3000:3000 --name sub-converter ghcr.io/tony-wang1990/laowang-sub-converter:latest
+npm run build
+npm run server
 ```
 
----
-
-## Supported Features
-
-| Category | Item | Platform/Note | Status |
-|:---|:---|:---|:---:|
-| **Protocols** | Shadowsocks (SS) | Standard |  |
-| | ShadowsocksR (SSR) | Standard |  |
-| | VMess | Standard |  |
-| | VLESS | Standard |  |
-| | VLESS + Reality | Vision/Reality |  |
-| | Trojan | Standard |  |
-| | Hysteria | v1 |  |
-| | Hysteria2 | v2 |  |
-| | TUIC | v5 |  |
-| | Snell | Common links |  |
-| | AnyTLS | URI, Mihomo YAML, sing-box JSON |  |
-| **Clients** | Clash | All Platforms |  |
-| | Clash Meta | All Platforms |  |
-| | Surge | iOS/macOS |  |
-| | Quantumult X | iOS |  |
-| | Shadowrocket | iOS |  |
-| | Loon | iOS |  |
-| | V2RayN | Windows |  |
-| | V2RayNG | Android |  |
-| | NekoBox | Android |  |
-| | Surfboard | Android |  |
-| | Stash | iOS/macOS |  |
-| | sing-box | All Platforms |  |
-
----
-
-## Backup API
-
-The system automatically switches to backup APIs when the main service is unavailable:
-
-- Local Service
-- api.v1.mk
-- sub.xeton.dev
-- api.dler.io
-
----
-
-## Tech Stack
-
-- **Frontend**: Vue 3 + Vite
-- **Backend**: Node.js + Express
-- **Style**: CSS Variables + Glassmorphism
-- **Deployment**: Docker, Vercel, Netlify, Cloudflare
-
----
-
-## Test
+## Verification
 
 ```bash
 npm test
@@ -179,8 +62,19 @@ npm run build
 npm run audit
 ```
 
----
+## API
+
+```http
+GET /api/convert
+POST /api/merge
+POST /api/merge/preview
+POST /api/health/check
+POST /api/shortlink
+GET /api/shortlink/list
+GET /api/targets
+GET /healthz
+```
 
 ## License
 
-MIT License
+MIT

@@ -1,26 +1,27 @@
 <template>
-  <main class="tool-page">
-    <section class="tool-shell">
-      <header class="hero-panel">
+  <main class="page">
+    <section class="page-shell stack">
+      <header class="hero-surface health-hero">
         <div>
-          <p class="eyebrow">节点健康检测</p>
-          <h1>先检测可用性，再导出在线节点</h1>
-          <p class="subtitle">从当前服务器检测节点连通性和延迟，过滤失效节点，并导出目标客户端可用的在线配置。</p>
+          <p class="section-label">NODE HEALTH RADAR</p>
+          <h1 class="title-xl">先检测可用性，再导出在线节点</h1>
+          <p class="subtitle">
+            从当前服务器侧检测节点 TCP 连通性和延迟，过滤失效节点，并导出目标客户端可用配置。
+          </p>
         </div>
-        <div class="hero-icon">
-          <HeartPulse :size="30" />
-        </div>
+        <HeartPulse :size="34" />
       </header>
 
-      <section class="control-panel">
+      <section class="panel control-panel">
         <div class="mode-tabs">
-          <button :class="{ active: sourceMode === 'url' }" @click="sourceMode = 'url'">订阅地址</button>
-          <button :class="{ active: sourceMode === 'content' }" @click="sourceMode = 'content'">原始节点</button>
+          <button type="button" :class="{ active: sourceMode === 'url' }" @click="sourceMode = 'url'">订阅地址</button>
+          <button type="button" :class="{ active: sourceMode === 'content' }" @click="sourceMode = 'content'">原始节点</button>
         </div>
 
         <label class="field">
           <span>{{ sourceMode === 'url' ? '订阅地址' : '节点内容' }}</span>
           <textarea
+            class="textarea mono"
             v-model="sourceInput"
             :rows="sourceMode === 'url' ? 3 : 7"
             :placeholder="sourceMode === 'url' ? 'https://example.com/subscription?token=...' : 'ss://...\\nvmess://...\\nclash/sing-box 配置...'"
@@ -30,25 +31,14 @@
         <div class="settings-grid">
           <label class="field">
             <span>导出格式</span>
-            <select v-model="exportTarget">
-              <option value="v2rayn">V2RayN / 分享链接</option>
-              <option value="v2rayng">V2RayNG / 分享链接</option>
-              <option value="shadowrocket">Shadowrocket 分享链接</option>
-              <option value="clash">Clash YAML</option>
-              <option value="clashmeta">Clash Meta YAML</option>
-              <option value="mihomo">Mihomo YAML</option>
-              <option value="stash">Stash YAML</option>
-              <option value="singbox">sing-box JSON</option>
-              <option value="hiddify">Hiddify JSON</option>
-              <option value="nekobox">NekoBox JSON</option>
-              <option value="surge">Surge CONF</option>
-              <option value="loon">Loon CONF</option>
+            <select class="select" v-model="exportTarget">
+              <option v-for="client in exportTargets" :key="client.id" :value="client.id">{{ client.name }}</option>
             </select>
           </label>
 
           <label class="field">
             <span>超时时间</span>
-            <select v-model.number="timeout">
+            <select class="select" v-model.number="timeout">
               <option :value="3000">3 秒</option>
               <option :value="5000">5 秒</option>
               <option :value="8000">8 秒</option>
@@ -57,7 +47,7 @@
 
           <label class="field">
             <span>并发数量</span>
-            <select v-model.number="concurrent">
+            <select class="select" v-model.number="concurrent">
               <option :value="5">5 个</option>
               <option :value="10">10 个</option>
               <option :value="20">20 个</option>
@@ -66,21 +56,21 @@
         </div>
 
         <div class="actions">
-          <button class="primary" @click="startCheck" :disabled="loading || !sourceInput.trim()">
+          <button class="btn btn-primary" type="button" @click="startCheck" :disabled="loading || !sourceInput.trim()">
             <Loader2 v-if="loading" :size="18" class="spin" />
             <Activity v-else :size="18" />
             <span>{{ loading ? '检测中' : '开始检测' }}</span>
           </button>
-          <button class="secondary" @click="exportOnlineNodes" :disabled="!exportConfig">
+          <button class="btn btn-secondary" type="button" @click="exportOnlineNodes" :disabled="!exportConfig">
             <Download :size="18" />
             <span>导出在线节点</span>
           </button>
         </div>
 
-        <p v-if="error" class="error">{{ error }}</p>
+        <p v-if="error" class="alert alert-error">{{ error }}</p>
       </section>
 
-      <section v-if="results.length" class="result-panel">
+      <section v-if="results.length" class="panel result-panel">
         <div class="summary-grid">
           <div class="summary-card">
             <span>总节点</span>
@@ -101,7 +91,7 @@
         </div>
 
         <div class="filter-bar">
-          <button v-for="item in filters" :key="item.id" :class="{ active: currentFilter === item.id }" @click="currentFilter = item.id">
+          <button v-for="item in filters" :key="item.id" type="button" :class="{ active: currentFilter === item.id }" @click="currentFilter = item.id">
             {{ item.label }}
           </button>
         </div>
@@ -109,7 +99,7 @@
         <div class="node-list">
           <article v-for="node in filteredResults" :key="`${node.type}-${node.server}-${node.port}-${node.name}`" class="node-row" :class="node.status">
             <span class="status-dot"></span>
-            <div>
+            <div class="node-main">
               <strong>{{ node.name }}</strong>
               <small>{{ node.type.toUpperCase() }} · {{ node.server }}:{{ node.port }}</small>
             </div>
@@ -139,6 +129,25 @@ const summary = ref({ total: 0, online: 0, offline: 0, avgLatency: 0 })
 const exportConfig = ref('')
 const exportFileName = ref('online-nodes.txt')
 const currentFilter = ref('all')
+
+const exportTargets = [
+  { id: 'v2rayn', name: 'V2RayN / 分享链接' },
+  { id: 'v2rayng', name: 'V2RayNG / 分享链接' },
+  { id: 'shadowrocket', name: 'Shadowrocket 分享链接' },
+  { id: 'clash', name: 'Clash YAML' },
+  { id: 'clashmeta', name: 'Clash Meta YAML' },
+  { id: 'mihomo', name: 'Mihomo YAML' },
+  { id: 'stash', name: 'Stash YAML' },
+  { id: 'singbox', name: 'sing-box JSON' },
+  { id: 'hiddify', name: 'Hiddify JSON' },
+  { id: 'nekobox', name: 'NekoBox JSON' },
+  { id: 'sfa', name: 'SFA JSON' },
+  { id: 'sfi', name: 'SFI JSON' },
+  { id: 'sfm', name: 'SFM JSON' },
+  { id: 'surge', name: 'Surge CONF' },
+  { id: 'loon', name: 'Loon CONF' },
+  { id: 'surfboard', name: 'Surfboard CONF' }
+]
 
 const filters = [
   { id: 'all', label: '全部' },
@@ -204,77 +213,22 @@ const latencyClass = (latency) => {
 </script>
 
 <style scoped>
-.tool-page {
-  min-height: 100vh;
-  padding: 118px 24px 56px;
-  background:
-    linear-gradient(135deg, rgba(20, 184, 166, 0.12), transparent 34%),
-    linear-gradient(225deg, rgba(99, 102, 241, 0.14), transparent 42%),
-    #020617;
-}
-
-.tool-shell {
-  display: grid;
-  gap: 18px;
-  width: min(1120px, 100%);
-  margin: 0 auto;
-}
-
-.hero-panel,
-.control-panel,
-.result-panel {
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 8px;
-  background: rgba(15, 23, 42, 0.78);
-}
-
-.hero-panel {
+.health-hero {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 18px;
-  padding: clamp(26px, 4vw, 40px);
 }
 
-.eyebrow {
-  color: #22d3ee;
-  font-size: 0.86rem;
-  font-weight: 900;
-}
-
-h1 {
-  max-width: 760px;
-  margin-top: 10px;
-  color: #f8fafc;
-  font-size: clamp(2rem, 3.8vw, 3.45rem);
-  line-height: 1.12;
-}
-
-.subtitle {
-  max-width: 700px;
-  margin-top: 14px;
-  color: #cbd5e1;
-  font-size: 1rem;
-  line-height: 1.8;
-}
-
-.hero-icon {
-  display: grid;
-  place-items: center;
+.health-hero > svg {
   flex: 0 0 auto;
-  width: 70px;
-  height: 70px;
-  border: 1px solid rgba(34, 211, 238, 0.36);
-  border-radius: 8px;
-  color: #67e8f9;
-  background: rgba(8, 47, 73, 0.5);
+  color: var(--accent);
 }
 
 .control-panel,
 .result-panel {
   display: grid;
-  gap: 16px;
-  padding: 20px;
+  gap: 15px;
 }
 
 .mode-tabs,
@@ -286,122 +240,70 @@ h1 {
 }
 
 .mode-tabs button,
-.filter-bar button,
-.secondary,
-.primary {
-  min-height: 42px;
-  padding: 0 14px;
-  border-radius: 8px;
-  font: inherit;
-  font-size: 0.94rem;
-  font-weight: 900;
+.filter-bar button {
+  min-height: 40px;
+  padding: 0 13px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--text-soft);
+  background: rgba(255, 255, 255, 0.04);
   cursor: pointer;
-}
-
-.mode-tabs button,
-.filter-bar button,
-.secondary {
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  color: #cbd5e1;
-  background: rgba(15, 23, 42, 0.64);
+  font-weight: 900;
 }
 
 .mode-tabs button.active,
 .filter-bar button.active,
-.secondary:hover {
-  border-color: #22d3ee;
-  color: #ffffff;
+.mode-tabs button:hover,
+.filter-bar button:hover {
+  border-color: var(--line-strong);
+  color: var(--accent);
+  background: rgba(49, 214, 255, 0.08);
 }
 
-.primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  border: 0;
-  color: #03131a;
-  background: #67e8f9;
-}
-
-.primary:disabled,
-.secondary:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
-}
-
-.field {
+.settings-grid {
   display: grid;
-  gap: 8px;
-}
-
-.field span {
-  color: #cbd5e1;
-  font-size: 0.88rem;
-  font-weight: 900;
-}
-
-textarea,
-select {
-  width: 100%;
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  border-radius: 8px;
-  color: #f8fafc;
-  background: rgba(2, 6, 23, 0.72);
-  font: inherit;
-}
-
-textarea {
-  padding: 14px;
-  font-family: var(--font-mono);
-  resize: vertical;
-}
-
-select {
-  min-height: 44px;
-  padding: 0 12px;
-}
-
-.settings-grid,
-.summary-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1.4fr 1fr 1fr;
   gap: 12px;
 }
 
 .summary-grid {
+  display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .summary-card {
-  padding: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  border-radius: 8px;
-  background: rgba(2, 6, 23, 0.4);
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .summary-card span {
-  color: #94a3b8;
-  font-size: 0.84rem;
-  font-weight: 800;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 900;
 }
 
 .summary-card strong {
   display: block;
   margin-top: 6px;
-  color: #f8fafc;
-  font-size: 1.65rem;
+  color: var(--text);
+  font-size: 1.55rem;
+  line-height: 1;
 }
 
 .summary-card.online strong {
-  color: #86efac;
+  color: var(--accent-2);
 }
 
 .summary-card.offline strong {
-  color: #fda4af;
+  color: var(--danger);
 }
 
 .node-list {
   display: grid;
-  gap: 10px;
+  gap: 9px;
 }
 
 .node-row {
@@ -410,73 +312,69 @@ select {
   align-items: center;
   gap: 12px;
   padding: 13px;
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  border-radius: 8px;
-  background: rgba(2, 6, 23, 0.36);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .status-dot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #f43f5e;
+  background: var(--danger);
+  box-shadow: 0 0 14px rgba(255, 107, 122, 0.6);
 }
 
 .node-row.online .status-dot {
-  background: #22c55e;
+  background: var(--accent-2);
+  box-shadow: 0 0 14px rgba(120, 242, 176, 0.7);
 }
 
-.node-row strong,
-.node-row small {
+.node-main {
+  min-width: 0;
+}
+
+.node-main strong,
+.node-main small {
   display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.node-row strong {
-  color: #f8fafc;
+.node-main strong {
+  color: var(--text);
 }
 
-.node-row small {
-  margin-top: 3px;
-  color: #94a3b8;
+.node-main small {
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 0.82rem;
 }
 
 .latency {
+  color: var(--text-soft);
   font-weight: 900;
+  white-space: nowrap;
 }
 
 .latency.good {
-  color: #86efac;
+  color: var(--accent-2);
 }
 
 .latency.ok {
-  color: #fde68a;
+  color: var(--warning);
 }
 
 .latency.bad {
-  color: #fda4af;
-}
-
-.error {
-  color: #fecdd3;
-}
-
-.spin {
-  animation: spin 0.9s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
+  color: var(--danger);
 }
 
 @media (max-width: 760px) {
-  .tool-page {
-    padding: 100px 14px 36px;
-  }
-
-  .hero-panel,
+  .health-hero,
   .node-row {
-    align-items: stretch;
     grid-template-columns: 1fr;
+    flex-direction: column;
   }
 
   .settings-grid,

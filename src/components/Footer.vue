@@ -1,7 +1,8 @@
 <template>
   <footer class="footer">
-    <span>老王订阅转换器</span>
-    <a href="https://github.com/tony-wang1990/laowang-sub-converter" target="_blank">GitHub</a>
+    <span>LaoWang Sub Converter</span>
+    <span class="dot"></span>
+    <span>Production Docker image on GHCR</span>
   </footer>
 </template>
 
@@ -10,18 +11,27 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 18px;
-  padding: 24px;
-  color: #64748b;
-  background: #020617;
-  font-size: 0.88rem;
+  gap: 10px;
+  min-height: 58px;
+  padding: 16px;
+  border-top: 1px solid rgba(135, 160, 185, 0.12);
+  color: var(--text-muted);
+  background: rgba(3, 6, 10, 0.72);
+  font-size: 0.84rem;
+  font-weight: 800;
 }
 
-.footer a {
-  color: #94a3b8;
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
 }
 
-.footer a:hover {
-  color: #67e8f9;
+@media (max-width: 520px) {
+  .footer {
+    flex-direction: column;
+    gap: 5px;
+  }
 }
 </style>
