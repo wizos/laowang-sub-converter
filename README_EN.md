@@ -49,6 +49,39 @@ English | [简体中文](./README.md)
 ###  Recommended (Full Features)
 > Includes backend API and persistent storage, supports all features including Short Links.
 
+#### One-command VPS Deploy
+
+Run this on an Ubuntu/Debian/CentOS Linux server:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter/main/scripts/deploy.sh | sudo bash
+```
+
+Defaults:
+
+- Install directory: `/opt/laowang-sub-converter`
+- Data directory: `/opt/laowang-sub-converter/data`
+- Port: `3000`
+
+Common commands:
+
+```bash
+# Install on another port
+curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter/main/scripts/deploy.sh | sudo env PORT=8080 bash
+
+# Update to the latest image
+curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter/main/scripts/deploy.sh | sudo bash -s update
+
+# Show status
+curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter/main/scripts/deploy.sh | sudo bash -s status
+
+# Follow logs
+curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter/main/scripts/deploy.sh | sudo bash -s logs
+
+# Stop containers, keep data
+curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter/main/scripts/deploy.sh | sudo bash -s uninstall
+```
+
 | Platform | Button / Command |
 | :--- | :--- |
 | **Docker (VPS)** | `docker-compose up -d` |

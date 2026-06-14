@@ -34,6 +34,45 @@ npm run server
 
 ## Docker / NAS
 
+### 服务器一键部署
+
+推荐在 Ubuntu/Debian/CentOS 等 Linux 服务器上直接运行：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter/main/scripts/deploy.sh | sudo bash
+```
+
+默认会部署到 `/opt/laowang-sub-converter`，数据保存在 `/opt/laowang-sub-converter/data`，访问端口为 `3000`。
+
+常用命令：
+
+```bash
+# 指定端口安装
+curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter/main/scripts/deploy.sh | sudo env PORT=8080 bash
+
+# 更新到最新镜像
+curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter/main/scripts/deploy.sh | sudo bash -s update
+
+# 查看状态
+curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter/main/scripts/deploy.sh | sudo bash -s status
+
+# 查看日志
+curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter/main/scripts/deploy.sh | sudo bash -s logs
+
+# 卸载容器，保留数据目录
+curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter/main/scripts/deploy.sh | sudo bash -s uninstall
+```
+
+如果需要允许后端拉取本机或内网订阅地址：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/tony-wang1990/laowang-sub-converter/main/scripts/deploy.sh | sudo env ALLOW_PRIVATE_SUBSCRIPTION_URLS=1 bash
+```
+
+脚本会自动检查 Docker；未安装 Docker 时会尝试通过官方安装脚本安装。
+
+### 手动 Docker 部署
+
 ```bash
 docker run -d \
   --name laowang-sub-converter \
