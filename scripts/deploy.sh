@@ -83,6 +83,18 @@ services:
 EOF
 }
 
+remove_conflicting_container() {
+  local container_id
+  container_id="$(docker ps -aq --filter "name=^/${APP_NAME}$" | head -n 1 || true)"
+
+  if [ -z "$container_id" ]; then
+    return
+  fi
+
+  warn "Removing existing container with the same name: ${APP_NAME} (${container_id})"
+  docker rm -f "$container_id" >/dev/null
+}
+
 wait_for_health() {
   local url="http://127.0.0.1:${PORT}/healthz"
   for _ in $(seq 1 30); do
@@ -111,6 +123,7 @@ install_or_update() {
 
   cd "$INSTALL_DIR"
   $compose pull
+  remove_conflicting_container
   $compose up -d
   wait_for_health
 
@@ -121,6 +134,9 @@ status_app() {
   install_docker
   local compose
   compose="$(compose_cmd)"
+  if [ ! -f "${INSTALL_DIR}/docker-compose.yml" ]; then
+    fail "No installation found at ${INSTALL_DIR}. Run install first."
+  fi
   cd "$INSTALL_DIR"
   $compose ps
 }
@@ -129,6 +145,9 @@ logs_app() {
   install_docker
   local compose
   compose="$(compose_cmd)"
+  if [ ! -f "${INSTALL_DIR}/docker-compose.yml" ]; then
+    fail "No installation found at ${INSTALL_DIR}. Run install first."
+  fi
   cd "$INSTALL_DIR"
   $compose logs -f --tail=200
 }
@@ -143,6 +162,7 @@ uninstall_app() {
     cd "$INSTALL_DIR"
     $compose down
   fi
+  remove_conflicting_container
 
   warn "App stopped. Data is kept at: ${DATA_DIR}"
   warn "Remove data manually if needed: rm -rf ${INSTALL_DIR}"
