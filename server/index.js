@@ -57,9 +57,19 @@ app.use('/api', (req, res) => {
 })
 
 if (shouldServeFrontend) {
-    app.use(express.static(distDir))
+    app.use(express.static(distDir, {
+        etag: true,
+        setHeaders(res, filePath) {
+            if (filePath.endsWith('.html')) {
+                res.setHeader('Cache-Control', 'no-cache')
+            } else if (filePath.includes(`${path.sep}assets${path.sep}`)) {
+                res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+            }
+        }
+    }))
 
     app.get('*', (req, res) => {
+        res.setHeader('Cache-Control', 'no-cache')
         res.sendFile(path.join(distDir, 'index.html'))
     })
 }

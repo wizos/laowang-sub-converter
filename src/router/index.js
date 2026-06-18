@@ -1,35 +1,41 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import About from '../views/About.vue'
+import Converter from '../views/Converter.vue'
+import HealthCheck from '../views/HealthCheck.vue'
+import Home from '../views/Home.vue'
+import Merge from '../views/Merge.vue'
+import ShortLink from '../views/ShortLink.vue'
 
 const routes = [
     {
         path: '/',
         name: 'Home',
-        component: () => import('../views/Home.vue')
+        component: Home
     },
     {
         path: '/converter',
         name: 'Converter',
-        component: () => import('../views/Converter.vue')
+        component: Converter
     },
     {
         path: '/shortlink',
         name: 'ShortLink',
-        component: () => import('../views/ShortLink.vue')
+        component: ShortLink
     },
     {
         path: '/about',
         name: 'About',
-        component: () => import('../views/About.vue')
+        component: About
     },
     {
         path: '/health',
         name: 'HealthCheck',
-        component: () => import('../views/HealthCheck.vue')
+        component: HealthCheck
     },
     {
         path: '/merge',
         name: 'Merge',
-        component: () => import('../views/Merge.vue')
+        component: Merge
     }
 ]
 
