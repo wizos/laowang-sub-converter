@@ -2,17 +2,18 @@
   <header class="topbar">
     <router-link to="/" class="brand" @click="closeMenu">
       <span class="brand-symbol">
-        <Network :size="22" />
+        <span class="brand-monogram">LW</span>
+        <span class="brand-signal" aria-hidden="true"></span>
       </span>
       <span class="brand-copy">
         <strong>LaoWang</strong>
-        <small>SUB OPS</small>
+        <small>SUB CONVERTER</small>
       </span>
     </router-link>
 
     <nav class="nav" :class="{ open: menuOpen }" aria-label="主导航">
       <router-link v-for="item in navItems" :key="item.to" :to="item.to" @click="closeMenu">
-        <component :is="item.icon" :size="17" />
+        <component :is="item.icon" :size="20" :stroke-width="2.2" />
         <span>{{ item.label }}</span>
       </router-link>
     </nav>
@@ -25,7 +26,7 @@
         rel="noreferrer"
         title="GitHub"
       >
-        <Github :size="19" />
+        <Github :size="21" />
       </a>
       <button class="icon-action menu-button" type="button" title="菜单" @click="toggleMenu">
         <X v-if="menuOpen" :size="20" />
@@ -37,7 +38,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { Activity, Github, GitMerge, HeartPulse, Home, Link, Menu, Network, Rocket, X } from 'lucide-vue-next'
+import { Activity, Github, GitMerge, HeartPulse, Home, Link, Menu, Rocket, X } from 'lucide-vue-next'
 
 const menuOpen = ref(false)
 
@@ -62,22 +63,37 @@ const closeMenu = () => {
 <style scoped>
 .topbar {
   position: fixed;
-  top: 14px;
+  top: 16px;
   left: 50%;
   z-index: 100;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 12px;
-  width: min(1240px, calc(100% - 28px));
-  min-height: 66px;
-  padding: 10px 12px;
+  gap: 22px;
+  width: min(1440px, calc(100% - 32px));
+  min-height: 82px;
+  padding: 11px 14px;
   border: 1px solid rgba(135, 160, 185, 0.2);
-  border-radius: var(--radius);
-  background: rgba(5, 8, 13, 0.88);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(20px);
+  border-radius: 14px;
+  background:
+    linear-gradient(100deg, rgba(49, 214, 255, 0.055), transparent 28%),
+    rgba(5, 8, 13, 0.92);
+  box-shadow:
+    0 24px 90px rgba(0, 0, 0, 0.48),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  backdrop-filter: blur(24px);
   transform: translateX(-50%);
+}
+
+.topbar::after {
+  content: '';
+  position: absolute;
+  right: 92px;
+  bottom: -1px;
+  left: 244px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(49, 214, 255, 0.28), transparent);
+  pointer-events: none;
 }
 
 .brand,
@@ -91,69 +107,132 @@ const closeMenu = () => {
 }
 
 .brand {
-  gap: 11px;
+  gap: 14px;
   min-width: 0;
+  padding-right: 9px;
 }
 
 .brand-symbol {
+  position: relative;
   justify-content: center;
-  width: 42px;
-  height: 42px;
-  border: 1px solid rgba(49, 214, 255, 0.42);
-  border-radius: var(--radius);
-  color: var(--accent);
-  background: rgba(49, 214, 255, 0.09);
-  box-shadow: inset 0 0 24px rgba(49, 214, 255, 0.08);
+  width: 58px;
+  height: 58px;
+  overflow: hidden;
+  border: 1px solid rgba(49, 214, 255, 0.62);
+  border-radius: 15px;
+  color: #061018;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.8), transparent 36%),
+    linear-gradient(135deg, var(--accent), var(--accent-2));
+  box-shadow:
+    0 12px 32px rgba(49, 214, 255, 0.2),
+    inset 0 0 22px rgba(255, 255, 255, 0.18);
+  transform: rotate(-3deg);
+}
+
+.brand-symbol::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border: 1px solid rgba(3, 16, 24, 0.2);
+  border-radius: 10px;
+}
+
+.brand-monogram {
+  position: relative;
+  z-index: 1;
+  font-family: var(--mono);
+  font-size: 1.16rem;
+  font-weight: 1000;
+  letter-spacing: -0.12em;
+  transform: translateX(-1px);
+}
+
+.brand-signal {
+  position: absolute;
+  right: 7px;
+  bottom: 7px;
+  width: 7px;
+  height: 7px;
+  border: 2px solid #061018;
+  border-radius: 50%;
+  background: var(--accent-2);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.35);
 }
 
 .brand-copy {
   display: grid;
-  gap: 1px;
+  gap: 4px;
 }
 
 .brand-copy strong {
   color: var(--text);
-  font-size: 1rem;
-  font-weight: 900;
-  line-height: 1;
+  font-size: 1.36rem;
+  font-weight: 1000;
+  line-height: 0.96;
+  letter-spacing: -0.035em;
 }
 
 .brand-copy small {
-  color: var(--text-muted);
+  color: var(--accent);
   font-family: var(--mono);
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.18em;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
 }
 
 .nav {
   justify-content: center;
-  gap: 5px;
+  gap: 8px;
   min-width: 0;
 }
 
 .nav a {
+  position: relative;
   gap: 7px;
-  min-height: 42px;
-  padding: 0 11px;
+  min-height: 54px;
+  padding: 0 15px;
   border: 1px solid transparent;
-  border-radius: var(--radius);
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  font-weight: 900;
+  border-radius: 10px;
+  color: #8fa1b7;
+  font-size: 1rem;
+  font-weight: 950;
   white-space: nowrap;
-  transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
+  transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.nav a::after {
+  content: '';
+  position: absolute;
+  right: 16px;
+  bottom: 7px;
+  left: 16px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  opacity: 0;
+  transform: scaleX(0.3);
+  transition: opacity 0.18s ease, transform 0.18s ease;
 }
 
 .nav a:hover,
 .nav a.router-link-active {
-  border-color: rgba(49, 214, 255, 0.26);
+  border-color: rgba(49, 214, 255, 0.3);
   color: var(--text);
-  background: rgba(49, 214, 255, 0.08);
+  background:
+    linear-gradient(180deg, rgba(49, 214, 255, 0.12), rgba(49, 214, 255, 0.045));
+  transform: translateY(-1px);
 }
 
 .nav a.router-link-active {
   color: var(--accent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.nav a:hover::after,
+.nav a.router-link-active::after {
+  opacity: 1;
+  transform: scaleX(1);
 }
 
 .actions {
@@ -163,10 +242,10 @@ const closeMenu = () => {
 
 .icon-action {
   justify-content: center;
-  width: 42px;
-  height: 42px;
+  width: 50px;
+  height: 50px;
   border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border-radius: 12px;
   color: var(--text-soft);
   background: rgba(255, 255, 255, 0.04);
   cursor: pointer;
@@ -181,7 +260,7 @@ const closeMenu = () => {
   display: none;
 }
 
-@media (max-width: 1010px) {
+@media (max-width: 1180px) {
   .topbar {
     grid-template-columns: auto auto;
     justify-content: space-between;
@@ -193,15 +272,16 @@ const closeMenu = () => {
 
   .nav {
     position: absolute;
-    top: 76px;
+    top: 94px;
     left: 0;
     right: 0;
     display: none;
     flex-direction: column;
     align-items: stretch;
-    padding: 10px;
+    gap: 6px;
+    padding: 12px;
     border: 1px solid var(--line);
-    border-radius: var(--radius);
+    border-radius: 14px;
     background: rgba(5, 8, 13, 0.96);
     box-shadow: var(--shadow);
   }
@@ -212,16 +292,53 @@ const closeMenu = () => {
 
   .nav a {
     justify-content: flex-start;
-    min-height: 46px;
+    min-height: 50px;
+    padding: 0 16px;
   }
 }
 
 @media (max-width: 480px) {
+  .topbar {
+    top: 10px;
+    width: calc(100% - 20px);
+    min-height: 70px;
+    padding: 8px 9px;
+  }
+
+  .brand {
+    gap: 10px;
+  }
+
+  .brand-symbol {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+  }
+
   .brand-copy strong {
-    max-width: 96px;
+    max-width: 118px;
     overflow: hidden;
+    font-size: 1.1rem;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .brand-copy small {
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+  }
+
+  .icon-action {
+    width: 44px;
+    height: 44px;
+  }
+
+  .actions > a {
+    display: none;
+  }
+
+  .nav {
+    top: 78px;
   }
 }
 </style>
